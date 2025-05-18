@@ -3,76 +3,284 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Loswingin R6 Tournament</title>
-<link rel="stylesheet" href="styles.css" />
+<title>Loswingin R6 Siege Tournament</title>
+<style>
+  /* === CSS START === */
+  body {
+    margin: 0; padding: 0;
+    background: linear-gradient(135deg, #ff00cc, #333399);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .container {
+    display: flex;
+    width: 900px;
+    max-width: 95vw;
+    background: rgba(20,20,40,0.85);
+    border-radius: 15px;
+    box-shadow:
+      0 0 15px #ff00cc,
+      0 0 30px #ff00cc,
+      0 0 45px #00ffff,
+      0 0 60px #00ffff;
+    overflow: hidden;
+    height: 600px;
+  }
+  .tabs {
+    flex-shrink: 0;
+    width: 150px;
+    background: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    border-right: 2px solid #ff00cc;
+  }
+  .tab-button {
+    padding: 15px 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ff00cc;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+    user-select: none;
+  }
+  .tab-button:hover,
+  .tab-button.active {
+    background: #ff00cc;
+    color: #1a1a2e;
+    border-left-color: #00ffff;
+    box-shadow:
+      inset 4px 0 6px #00ffff,
+      0 0 8px #ff00cc,
+      0 0 15px #00ffff;
+  }
+  .tab-content {
+    flex-grow: 1;
+    padding: 30px;
+    overflow-y: auto;
+    display: none;
+  }
+  .tab-content.active {
+    display: block;
+  }
+
+  /* Form styles */
+  form {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+  input, select {
+    width: 100%;
+    padding: 8px 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #444;
+    background: #222;
+    color: #fff;
+    font-size: 1rem;
+  }
+  input::placeholder {
+    color: #888;
+  }
+  button {
+    background: #ff00cc;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    color: #1a1a2e;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+  }
+  button:hover {
+    background: #00ffff;
+    color: #111;
+  }
+
+  /* Players list styling */
+  .players-list {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .players-list h3 {
+    margin-bottom: 15px;
+  }
+  .player-item {
+    background: #222;
+    border-radius: 6px;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #ccc;
+  }
+
+  /* Admin section */
+  #admin input[type="password"] {
+    width: calc(100% - 20px);
+  }
+  #admin .pin-input {
+    margin-bottom: 15px;
+  }
+  #admin button.reset-btn {
+    background: #ff0066;
+    margin-top: 10px;
+  }
+  #admin button.reset-btn:hover {
+    background: #cc0044;
+  }
+
+  /* Confirmation message */
+  .confirmation {
+    text-align: center;
+    margin-top: 10px;
+    font-weight: 700;
+    color: #0f0;
+  }
+</style>
 </head>
 <body>
-  <div class="container">
 
-    <nav class="tabs">
-      <button class="tab-button active" data-tab="register">Register</button>
-      <button class="tab-button" data-tab="brackets">Brackets</button>
-      <button class="tab-button" data-tab="admin">Admin</button>
-      <button class="tab-button" data-tab="options">Options</button>
-      <button class="tab-button" data-tab="paytoplay">Pay to Play</button>
-      <button class="tab-button" data-tab="freetoplay">Free to Play</button>
-    </nav>
+<div class="container">
 
-    <section id="register" class="tab-content active">
-      <h2>Contact Info</h2>
-      <form id="registerForm">
-        <input type="text" id="playerName" placeholder="Name" required />
-        <input type="text" id="playerEmail" placeholder="Email" required />
-        <button type="submit">Register</button>
-      </form>
-      <div id="registerConfirmation" class="confirmation"></div>
-    </section>
-
-    <section id="brackets" class="tab-content">
-      <h2>Brackets</h2>
-      <div id="bracketsPinContainer">
-        <input type="password" id="bracketsPinInput" placeholder="Enter PIN to view brackets" />
-        <button id="bracketsPinButton">Enter</button>
-      </div>
-      <div id="registeredPlayersList" class="players-list" style="display:none;">
-        <h3>Registered Players</h3>
-        <ul id="playersUl"></ul>
-      </div>
-    </section>
-
-    <section id="admin" class="tab-content">
-      <h2>Admin Panel</h2>
-      <div id="adminPinContainer">
-        <input type="password" id="adminPinInput" placeholder="Enter Admin PIN" />
-        <button id="adminPinButton">Enter</button>
-      </div>
-      <div id="adminContent" style="display:none;">
-        <button id="resetPlayersBtn">Reset Registered Players</button>
-        <div id="adminMessage"></div>
-      </div>
-    </section>
-
-    <section id="options" class="tab-content">
-      <h2>Options</h2>
-      <p>Options content goes here...</p>
-    </section>
-
-    <section id="paytoplay" class="tab-content">
-      <h2>Pay to Play</h2>
-      <p>Pay to Play content goes here...</p>
-    </section>
-
-    <section id="freetoplay" class="tab-content">
-      <h2>Free to Play</h2>
-      <p>Free to Play content goes here...</p>
-    </section>
-
+  <div class="tabs">
+    <button class="tab-button active" data-tab="register">Register</button>
+    <button class="tab-button" data-tab="brackets">Brackets</button>
+    <button class="tab-button" data-tab="admin">Admin</button>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <div id="register" class="tab-content active">
+    <h2>Contact Info</h2>
+    <form id="registerForm">
+      <label for="playerName">Player Name</label>
+      <input id="playerName" type="text" placeholder="Enter your name" required />
+      
+      <label for="playerEmail">Email</label>
+      <input id="playerEmail" type="email" placeholder="Enter your email" required />
+      
+      <label for="playerTeam">Team Name</label>
+      <input id="playerTeam" type="text" placeholder="Enter your team" required />
 
-  <script src="scripts/script.js"></script>
-</body>
-</html>
+      <button type="submit">Register</button>
+    </form>
+    <div id="confirmation" class="confirmation" style="display:none;">Registration Successful!</div>
+  </div>
+
+  <div id="brackets" class="tab-content">
+    <h2>Registered Players</h2>
+    <div id="playersList" class="players-list"></div>
+  </div>
+
+  <div id="admin" class="tab-content">
+    <h2>Admin Panel</h2>
+    <div class="pin-input">
+      <label for="adminPin">Enter Admin PIN</label>
+      <input id="adminPin" type="password" placeholder="PIN" />
+      <button id="adminPinBtn">Unlock Admin</button>
+    </div>
+    <button id="resetPlayersBtn" class="reset-btn" disabled>Reset Registered Players</button>
+  </div>
+
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<script>
+  // Your Firebase config here
+  const firebaseConfig = {
+    apiKey: "AIzaSyBiNxXtfGy4YbywG4WfsKo-i0oVDz_NTbM",
+    authDomain: "loswingin-r6.firebaseapp.com",
+    projectId: "loswingin-r6",
+    storageBucket: "loswingin-r6.firebasestorage.app",
+    messagingSenderId: "44769835884",
+    appId: "1:44769835884:web:157c7aed1b98442532d149",
+    measurementId: "G-LF4DE76P16"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  // Tab switching logic
+  const tabs = document.querySelectorAll('.tab-button');
+  const contents = document.querySelectorAll('.tab-content');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+
+      // PIN check for brackets/admin tabs
+      if ((target === 'admin' || target === 'brackets') && !window.authorized) {
+        alert('Please unlock Admin first with PIN.');
+        return;
+      }
+
+      tabs.forEach(t => t.classList.remove('active'));
+      contents.forEach(c => c.classList.remove('active'));
+
+      tab.classList.add('active');
+      document.getElementById(target).classList.add('active');
+    });
+  });
+
+  // Admin PIN logic
+  const adminPinInput = document.getElementById('adminPin');
+  const adminPinBtn = document.getElementById('adminPinBtn');
+  const resetBtn = document.getElementById('resetPlayersBtn');
+
+  const ADMIN_PIN = '1234';
+  window.authorized = false;
+
+  adminPinBtn.addEventListener('click', () => {
+    if (adminPinInput.value === ADMIN_PIN) {
+      window.authorized = true;
+      alert('Admin unlocked!');
+      resetBtn.disabled = false;
+      // Auto switch to admin tab after unlocking
+      document.querySelector('.tab-button[data-tab="admin"]').click();
+      adminPinInput.value = '';
+    } else {
+      alert('Incorrect PIN');
+    }
+  });
+
+  // Reset registered players
+  resetBtn.addEventListener('click', async () => {
+    if (!window.authorized) return alert('Unauthorized!');
+    if (!confirm('Are you sure you want to reset all registered players?')) return;
+
+    try {
+      const snapshot = await db.collection('registeredPlayers').get();
+      const batch = db.batch();
+      snapshot.forEach(doc => batch.delete(doc.ref));
+      await batch.commit();
+      alert('All registered players have been reset.');
+      loadPlayers();
+    } catch (error) {
+      console.error('Reset error:', error);
+      alert('Failed to reset players.');
+    }
+  });
+
+  // Register form
+  const registerForm = document.getElementById('registerForm');
+  const confirmation = document.getElementById('confirmation');
+
+  registerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('playerName').

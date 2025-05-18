@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Loswingin R6 Siege Tournament</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="particles-js"></div>
+
+  <header>
+    <h1>Loswingin Rainbow Six Siege Tournament</h1>
+    <p class="quote">"Prepare, adapt, and dominate."</p>
+  </header>
+
+  <nav>
+    <a href="#" class="tab-link active" data-tab="register">Register</a>
+    <a href="#" class="tab-link pin-protected" data-tab="brackets">Brackets</a>
+    <a href="#" class="tab-link pin-protected" data-tab="admin">Admin</a>
+  </nav>
+
+  <main>
+    <section id="register" class="tab active">
+      <h2>Register Your Team / Player</h2>
+      <form id="registerForm">
+        <input type="text" id="teamName" placeholder="Team or Player Name" required />
+        <input type="text" id="contactInfo" placeholder="Contact Info (Email or Discord)" required />
+        <button type="submit">Register</button>
+      </form>
+    </section>
+
+    <section id="brackets" class="tab">
+      <h2>Registered Players / Teams</h2>
+      <ul id="registeredList"></ul>
+
+      <div class="brackets-controls">
+        <label for="bracketType">Select Bracket Type:</label>
+        <select id="bracketType">
+          <option value="5v5">5v5</option>
+          <option value="2v2">2v2</option>
+          <option value="1v1">1v1</option>
+        </select>
+
+        <button id="generateBracketsBtn">Generate Brackets</button>
+        <button id="resetRegisteredBtn" class="danger">Reset Registered Players</button>
+      </div>
+
+      <pre id="bracketOutput"></pre>
+    </section>
+
+    <section id="admin" class="tab">
+      <h2>Admin Panel</h2>
+      <p id="adminStatus">Please enter PIN to access admin functions.</p>
+
+      <div id="adminContent" style="display:none;">
+        <h3>Registered Players / Teams</h3>
+        <ul id="adminRegisteredList"></ul>
+
+        <h3>Change Admin PIN</h3>
+        <input type="password" id="newPin" placeholder="New PIN" />
+        <button id="changePinBtn">Change PIN</button>
+        <p id="pinChangeMsg"></p>
+      </div>
+    </section>
+  </main>
+
+  <div id="pinPromptOverlay">
+    <div id="pinPrompt">
+      <p>Enter PIN:</p>
+      <input type="password" id="pinInput" autocomplete="off" />
+      <br />
+      <button id="pinSubmitBtn">Submit</button>
+      <button id="pinCancelBtn">Cancel</button>
+      <p id="pinError"></p>
+    </div>
+  </div>
+
+  <script src="particles.min.js"></script>
+  <script src="script.js"></script>
+  <script>
+    particlesJS("particles-js", {
+      particles: {
+        number: {
+          value: 75,
+          density: { enable: true, value_area: 800 }
+        },
+        color: { value: ["#00ffff", "#ff00ff"] },
+        shape: { type: "circle" },
+        opacity: { value: 0.5 },
+        size: { value: 4, random: true },
+        move: {
+          enable: true,
+          speed: 1.5,
+          direction: "none",
+          out_mode: "out"
+        }
+      },
+      interactivity: {
+        events: { onhover: { enable: true, mode: "repulse" } },
+        modes: { repulse: { distance: 100 } }
+      },
+      retina_detect: true
+    });
+  </script>
+</body>
+</html>

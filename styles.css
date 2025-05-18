@@ -1,0 +1,218 @@
+/* Background with parallax effect */
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #0ff;
+  background: linear-gradient(135deg, #0ff 0%, #000 40%, #ff00ff 100%);
+  background-attachment: fixed;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Subtle animated overlay for parallax simulation */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(255,0,255,0.1), transparent 70%),
+              radial-gradient(circle at bottom right, rgba(0,255,255,0.08), transparent 60%);
+  animation: parallax-move 30s infinite linear;
+  z-index: -1;
+  pointer-events: none;
+}
+
+@keyframes parallax-move {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-5%, -5%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+/* UI Components (unchanged layout) */
+header {
+  text-align: center;
+  padding: 50px 20px 20px;
+}
+
+header h1 {
+  font-size: 2.5em;
+  margin-top: 150px;
+  color: #ff00ff;
+  text-shadow: 0 0 8px #ff00ff, 0 0 20px #00ffff;
+}
+
+header .quote {
+  font-size: 1.1em;
+  color: #aaa;
+  font-style: italic;
+}
+
+nav {
+  display: flex;
+  justify-content: center;
+  background-color: #111;
+  padding: 10px;
+  box-shadow: 0 0 10px #0ff;
+}
+
+nav a {
+  margin: 0 15px;
+  padding: 10px 20px;
+  text-decoration: none;
+  color: #0ff;
+  border: 1px solid #0ff;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+nav a.active,
+nav a:hover {
+  background-color: #ff00ff;
+  color: #000;
+  box-shadow: 0 0 8px #ff00ff, 0 0 16px #ff00ff;
+}
+
+main {
+  padding: 20px;
+  max-width: 800px;
+  margin: auto;
+}
+
+.tab {
+  display: none;
+}
+
+.tab.active {
+  display: block;
+}
+
+form input,
+form select {
+  display: block;
+  width: 100%;
+  margin: 12px 0;
+  padding: 10px;
+  font-size: 1em;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background-color: #111;
+  color: #0ff;
+}
+
+form button {
+  padding: 12px 20px;
+  font-size: 1em;
+  background-color: #ff00ff;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 8px #ff00ff, 0 0 16px #ff00ff;
+}
+
+form button:hover {
+  background-color: #0ff;
+  box-shadow: 0 0 12px #0ff, 0 0 24px #0ff;
+  color: #000;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+ul li {
+  background-color: #111;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-left: 4px solid #0ff;
+  border-radius: 4px;
+  color: #fff;
+}
+
+.brackets-controls {
+  margin-top: 20px;
+}
+
+.brackets-controls select,
+.brackets-controls button {
+  margin: 10px 5px;
+}
+
+.danger {
+  background-color: #ff3333;
+  box-shadow: 0 0 10px #ff3333;
+}
+
+.danger:hover {
+  background-color: #ff5555;
+  box-shadow: 0 0 14px #ff5555;
+}
+
+/* PIN Overlay */
+#pinPromptOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+#pinPrompt {
+  background-color: #111;
+  padding: 30px;
+  border: 2px solid #0ff;
+  border-radius: 10px;
+  box-shadow: 0 0 12px #0ff;
+  text-align: center;
+}
+
+#pinPrompt input {
+  padding: 10px;
+  width: 200px;
+  margin: 10px auto;
+  display: block;
+  background-color: #000;
+  color: #0ff;
+  border: 1px solid #444;
+  border-radius: 5px;
+}
+
+#pinPrompt button {
+  margin: 5px;
+  padding: 10px 15px;
+  background-color: #ff00ff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 0 8px #ff00ff;
+}
+
+#pinPrompt button:hover {
+  background-color: #0ff;
+  color: #000;
+  box-shadow: 0 0 12px #0ff;
+}
+
+#pinError {
+  color: #ff3333;
+  margin-top: 10px;
+}

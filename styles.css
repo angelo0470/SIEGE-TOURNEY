@@ -1,217 +1,144 @@
-/* Reset and base styles */
-* {
-  box-sizing: border-box;
-}
-
 body {
+  margin: 0; padding: 0;
   background: linear-gradient(135deg, #ff00cc, #333399);
-  color: white;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
+  color: white;
+  height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
 }
-
 .container {
-  max-width: 900px;
-  width: 100%;
-  padding: 20px 30px 40px;
-  background: rgba(20, 20, 40, 0.85);
+  display: flex;
+  width: 900px;
+  max-width: 95vw;
+  background: rgba(20,20,40,0.85);
   border-radius: 15px;
   box-shadow:
     0 0 15px #ff00cc,
     0 0 30px #ff00cc,
     0 0 45px #00ffff,
     0 0 60px #00ffff;
-  margin-top: 40px;
+  overflow: hidden;
+  height: 600px;
 }
-
-/* Tab navigation */
 .tabs {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-bottom: 25px;
-}
-
-.tab-button {
+  flex-shrink: 0;
+  width: 150px;
   background: #1a1a2e;
-  border: 2px solid #ff00cc;
-  padding: 12px 30px;
-  font-size: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  border-right: 2px solid #ff00cc;
+}
+.tab-button {
+  padding: 15px 10px;
+  font-size: 1rem;
   font-weight: 600;
   color: #ff00cc;
+  border: none;
+  background: transparent;
   cursor: pointer;
-  border-radius: 8px;
-  box-shadow: 0 0 6px #ff00cc;
-  transition: all 0.3s ease;
-  user-select: none;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  border-left: 4px solid transparent;
+  transition: all 0.3s ease;
+  user-select: none;
 }
-
 .tab-button:hover,
 .tab-button.active {
   background: #ff00cc;
   color: #1a1a2e;
+  border-left-color: #00ffff;
   box-shadow:
-    0 0 10px #ff00cc,
-    0 0 20px #ff00cc,
-    0 0 30px #00ffff,
-    0 0 40px #00ffff;
+    inset 4px 0 6px #00ffff,
+    0 0 8px #ff00cc,
+    0 0 15px #00ffff;
 }
-
-/* Tab content */
 .tab-content {
+  flex-grow: 1;
+  padding: 30px;
+  overflow-y: auto;
   display: none;
 }
-
 .tab-content.active {
   display: block;
 }
 
 /* Form styles */
 form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
   max-width: 500px;
   margin: 0 auto;
 }
-
-input[type="text"],
-input[type="password"],
-input[type="email"] {
-  padding: 12px 15px;
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+input, select {
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: 1px solid #444;
+  background: #222;
+  color: #fff;
   font-size: 1rem;
-  border-radius: 8px;
-  border: none;
-  outline: none;
-  background: #222244;
-  color: white;
-  box-shadow:
-    inset 0 0 8px #00ffff,
-    inset 0 0 15px #ff00cc;
-  transition: background-color 0.3s ease;
 }
-
-input[type="text"]:focus,
-input[type="password"]:focus,
-input[type="email"]:focus {
-  background: #330033;
+input::placeholder {
+  color: #888;
 }
-
-button[type="submit"],
 button {
-  background: #00ffff;
+  background: #ff00cc;
   border: none;
-  padding: 12px 25px;
-  font-weight: 700;
-  font-size: 1rem;
+  padding: 12px 20px;
+  border-radius: 6px;
   color: #1a1a2e;
-  border-radius: 8px;
+  font-weight: 700;
   cursor: pointer;
-  box-shadow:
-    0 0 8px #00ffff,
-    0 0 12px #00ffff;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  user-select: none;
-  text-transform: uppercase;
+  font-size: 1rem;
+  transition: background 0.3s ease;
+}
+button:hover {
+  background: #00ffff;
+  color: #111;
 }
 
-button[type="submit"]:hover,
-button:hover {
-  background: #00baba;
-  box-shadow:
-    0 0 12px #00baba,
-    0 0 20px #00baba;
+/* Players list styling */
+.players-list {
+  max-width: 700px;
+  margin: 0 auto;
+}
+.players-list h3 {
+  margin-bottom: 15px;
+}
+.player-item {
+  background: #222;
+  border-radius: 6px;
+  padding: 10px 15px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #ccc;
+}
+
+/* Admin section */
+#admin input[type="password"] {
+  width: calc(100% - 20px);
+}
+#admin .pin-input {
+  margin-bottom: 15px;
+}
+#admin button.reset-btn {
+  background: #ff0066;
+  margin-top: 10px;
+}
+#admin button.reset-btn:hover {
+  background: #cc0044;
 }
 
 /* Confirmation message */
 .confirmation {
   text-align: center;
-  margin-top: 15px;
+  margin-top: 10px;
   font-weight: 700;
-  font-size: 1.1rem;
-  color: #00ffcc;
-  text-shadow:
-    0 0 10px #00ffcc,
-    0 0 20px #00ffcc;
-}
-
-/* Registered players list */
-.players-list {
-  margin-top: 20px;
-  max-height: 250px;
-  overflow-y: auto;
-  background: rgba(255, 0, 204, 0.12);
-  border-radius: 10px;
-  padding: 15px 20px;
-  box-shadow:
-    inset 0 0 8px #ff00cc,
-    inset 0 0 15px #00ffff;
-  color: #ff99ff;
-}
-
-.players-list h3 {
-  margin-top: 0;
-  font-weight: 700;
-  text-align: center;
-  text-shadow: 0 0 8px #ff00cc;
-}
-
-.players-list ul {
-  list-style: none;
-  padding-left: 0;
-  margin: 0;
-}
-
-.players-list ul li {
-  padding: 5px 0;
-  border-bottom: 1px solid #ff00cc44;
-  font-weight: 600;
-}
-
-/* Pin input containers */
-#bracketsPinContainer,
-#adminPinContainer {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin-bottom: 15px;
-}
-
-#bracketsPinInput,
-#adminPinInput {
-  width: 200px;
-}
-
-/* Admin message */
-#adminMessage {
-  margin-top: 15px;
-  font-weight: 700;
-  text-align: center;
-  color: #ff00cc;
-  text-shadow:
-    0 0 10px #ff00cc;
-}
-
-/* Responsive adjustments */
-@media (max-width: 600px) {
-  .tab-button {
-    padding: 10px 15px;
-    font-size: 0.9rem;
-  }
-
-  form {
-    width: 90%;
-  }
-
-  #bracketsPinInput,
-  #adminPinInput {
-    width: 130px;
-  }
+  color: #0f0;
 }

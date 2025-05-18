@@ -1,104 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Loswingin R6 Siege Tournament</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <title>Loswingin R6 Tournament</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
 <body>
-  <header>
-    <h1>Loswingin Rainbow Six Siege Tournament</h1>
-    <p class="quote">"Prepare, adapt, and dominate."</p>
-  </header>
-
-  <nav>
+  <div class="navbar">
     <a href="#" class="tab-link active" data-tab="register">Register</a>
-    <a href="#" class="tab-link pin-protected" data-tab="brackets">Brackets</a>
+    <a href="#" class="tab-link" data-tab="brackets">Brackets</a>
     <a href="#" class="tab-link pin-protected" data-tab="admin">Admin</a>
-  </nav>
+    <a href="#" class="tab-link" data-tab="options">Options</a>
+  </div>
 
-  <main>
-    <!-- Register Tab -->
-    <section id="register" class="tab active">
-      <h2>Register Your Team / Player</h2>
-      <form id="registerForm">
-        <input type="text" id="teamName" placeholder="Team or Player Name" required />
-        <input type="text" id="contactInfo" placeholder="Contact Info (Email or Discord)" required />
-        <button type="submit">Register</button>
-      </form>
-      <p id="registrationMessage"></p>
-    </section>
-
-    <!-- Brackets Tab -->
-    <section id="brackets" class="tab">
-      <h2>Registered Players / Teams</h2>
-      <ul id="registeredList"></ul>
-
-      <div class="brackets-controls">
-        <label for="bracketType">Select Bracket Type:</label>
-        <select id="bracketType">
-          <option value="5v5">5v5</option>
-          <option value="2v2">2v2</option>
-          <option value="1v1">1v1</option>
-        </select>
-
-        <button id="generateBracketsBtn">Generate Brackets</button>
-        <button id="resetRegisteredBtn" class="danger">Reset Registered Players</button>
-      </div>
-
-      <pre id="bracketOutput"></pre>
-    </section>
-
-    <!-- Admin Tab -->
-    <section id="admin" class="tab">
-      <h2>Admin Panel</h2>
-      <p id="adminStatus">Please enter PIN to access admin functions.</p>
-
-      <div id="adminContent" style="display:none;">
-        <h3>Registered Players / Teams</h3>
-        <ul id="adminRegisteredList"></ul>
-
-        <h3>Change Admin PIN</h3>
-        <input type="password" id="newPin" placeholder="New PIN" />
-        <button id="changePinBtn">Change PIN</button>
-        <p id="pinChangeMsg"></p>
-      </div>
-    </section>
-  </main>
-
-  <!-- PIN Prompt Overlay -->
-  <div id="pinPromptOverlay">
-    <div id="pinPrompt">
-      <p>Enter PIN:</p>
-      <input type="password" id="pinInput" autocomplete="off" />
-      <br />
+  <div id="pinPromptOverlay" class="pin-overlay">
+    <div class="pin-box">
+      <h3>Enter PIN</h3>
+      <input type="password" id="pinInput" placeholder="PIN" />
       <button id="pinSubmitBtn">Submit</button>
       <button id="pinCancelBtn">Cancel</button>
-      <p id="pinError" style="color:#ff3300; margin-top:8px;"></p>
+      <p id="pinError" class="error-msg"></p>
     </div>
   </div>
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
+  <div class="content">
+    <!-- Register Tab -->
+    <div id="register" class="tab active">
+      <h2>Register Your Team</h2>
+      <form id="registerForm">
+        <input type="text" id="teamName" placeholder="Team Name" required>
+        <input type="text" id="contactInfo" placeholder="Contact Info" required>
+        <button type="submit">Register</button>
+      </form>
+    </div>
 
-  <!-- Your Firebase config -->
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBiNxXtfGy4YbywG4WfsKo-i0oVDz_NTbM",
-      authDomain: "loswingin-r6.firebaseapp.com",
-      projectId: "loswingin-r6",
-      storageBucket: "loswingin-r6.appspot.com",
-      messagingSenderId: "44769835884",
-      appId: "1:44769835884:web:157c7aed1b98442532d149",
-      measurementId: "G-LF4DE76P16"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-  </script>
+    <!-- Brackets Tab -->
+    <div id="brackets" class="tab">
+      <h2>Brackets</h2>
+      <p>View and generate tournament brackets.</p>
+      <ul id="registeredList"></ul>
+      <select id="bracketType">
+        <option value="5v5">5v5</option>
+        <option value="2v2">2v2</option>
+        <option value="1v1">1v1</option>
+      </select>
+      <button id="generateBracketsBtn">Generate Brackets</button>
+      <pre id="bracketOutput"></pre>
+    </div>
 
-  <!-- Your Main Script -->
+    <!-- Admin Tab -->
+    <div id="admin" class="tab">
+      <h2>Admin Panel</h2>
+      <p id="adminStatus">Enter PIN to access admin features.</p>
+      <div id="adminContent" style="display: none;">
+        <h3>Registered Teams</h3>
+        <ul id="adminRegisteredList"></ul>
+        <button id="resetRegisteredBtn">Reset Registered Teams</button>
+
+        <h3>Change Admin PIN</h3>
+        <input type="password" id="newPin" placeholder="New PIN">
+        <button id="changePinBtn">Change PIN</button>
+        <p id="pinChangeMsg"></p>
+      </div>
+    </div>
+
+    <!-- Options Tab -->
+    <div id="options" class="tab">
+      <h2>Options</h2>
+      <p>Customize your tournament settings.</p>
+      <!-- Reserved for future expansion -->
+    </div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>

@@ -2,13 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Loswingin R6 Siege Tournament</title>
   <link rel="stylesheet" href="styles.css" />
-
-  <!-- Firebase JS SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
   <header>
@@ -31,6 +27,7 @@
         <input type="text" id="contactInfo" placeholder="Contact Info (Email or Discord)" required />
         <button type="submit">Register</button>
       </form>
+      <p id="registrationMessage"></p>
     </section>
 
     <!-- Brackets Tab -->
@@ -65,7 +62,6 @@
         <h3>Change Admin PIN</h3>
         <input type="password" id="newPin" placeholder="New PIN" />
         <button id="changePinBtn">Change PIN</button>
-        <button id="adminResetBtn" class="danger">Reset Registered Players</button>
         <p id="pinChangeMsg"></p>
       </div>
     </section>
@@ -83,6 +79,26 @@
     </div>
   </div>
 
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
+
+  <!-- Your Firebase config -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBiNxXtfGy4YbywG4WfsKo-i0oVDz_NTbM",
+      authDomain: "loswingin-r6.firebaseapp.com",
+      projectId: "loswingin-r6",
+      storageBucket: "loswingin-r6.appspot.com",
+      messagingSenderId: "44769835884",
+      appId: "1:44769835884:web:157c7aed1b98442532d149",
+      measurementId: "G-LF4DE76P16"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script>
+
+  <!-- Your Main Script -->
   <script src="script.js"></script>
 </body>
 </html>

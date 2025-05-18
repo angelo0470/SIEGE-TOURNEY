@@ -1,4 +1,4 @@
-// Firebase config (your credentials here)
+// Firebase config (your credentials)
 const firebaseConfig = {
   apiKey: "AIzaSyBiNxXtfGy4YbywG4WfsKo-i0oVDz_NTbM",
   authDomain: "loswingin-r6.firebaseapp.com",
@@ -9,13 +9,12 @@ const firebaseConfig = {
   measurementId: "G-LF4DE76P16"
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 // Variables
 let adminPin = localStorage.getItem('adminPin') || '1234';
-let adminAuthenticated = false;
+let authenticatedTabs = { admin: false, brackets: false };
 let pendingTab = null;
 
 // Elements
@@ -53,10 +52,12 @@ tabs.forEach(tab => {
     e.preventDefault();
     const targetTab = tab.dataset.tab;
 
-    if (tab.classList.contains('pin-protected') && !adminAuthenticated) {
+    // PIN protected tabs: brackets and admin
+    if ((targetTab === 'admin' || targetTab === 'brackets') && !authenticatedTabs[targetTab]) {
       showPinPrompt(targetTab);
       return;
     }
+
     activateTab(targetTab);
   });
 });
@@ -65,12 +66,14 @@ function activateTab(tabName) {
   tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
   sections.forEach(s => s.classList.toggle('active', s.id === tabName));
 
-  // Load data on certain tabs
   if (tabName === 'brackets') {
     loadRegistrationsToBrackets();
   }
-  if (tabName === 'admin' && adminAuthenticated) {
+  if (tabName === 'admin') {
     loadRegistrationsToAdmin();
+    adminContent.style.display = 'block';
+  } else {
+    adminContent.style.display = 'none';
   }
 }
 
@@ -87,13 +90,12 @@ function showPinPrompt(tabName) {
 pinSubmitBtn.addEventListener('click', () => {
   const pin = pinInput.value.trim();
   if (pin === adminPin) {
-    adminAuthenticated = true;
+    authenticatedTabs[pendingTab] = true;
     pinPromptOverlay.style.display = 'none';
     pinError.textContent = '';
     activateTab(pendingTab);
     pendingTab = null;
     adminStatus.textContent = "Admin access granted.";
-    adminContent.style.display = 'block';
   } else {
     pinError.textContent = 'Incorrect PIN.';
   }
@@ -142,7 +144,8 @@ registerForm.addEventListener('submit', async e => {
     });
     registerMsg.textContent = "Registration successful!";
     registerForm.reset();
-    if (document.getElementById('brackets').classList.contains('active')) {
+
+    if (authenticatedTabs.brackets && document.getElementById('brackets').classList.contains('active')) {
       loadRegistrationsToBrackets();
     }
   } catch (err) {
@@ -153,7 +156,7 @@ registerForm.addEventListener('submit', async e => {
   setTimeout(() => registerMsg.textContent = '', 3000);
 });
 
-// --- LOAD REGISTRATIONS TO BRACKETS TAB ---
+// --- LOAD REGISTRATIONS TO BRACKETS ---
 
 async function loadRegistrationsToBrackets() {
   registeredList.innerHTML = '<li>Loading...</li>';
@@ -176,7 +179,7 @@ async function loadRegistrationsToBrackets() {
   }
 }
 
-// --- LOAD REGISTRATIONS TO ADMIN TAB ---
+// --- LOAD REGISTRATIONS TO ADMIN ---
 
 async function loadRegistrationsToAdmin() {
   adminRegisteredList.innerHTML = '<li>Loading...</li>';
@@ -205,7 +208,6 @@ resetRegisteredBtn.addEventListener('click', async () => {
   if (!confirm('Are you sure you want to reset all registered players? This cannot be undone.')) return;
 
   try {
-    // Delete all docs from registrations collection (Firestore does not have batch delete in web SDK so do manually)
     const snapshot = await db.collection('registrations').get();
     const batch = db.batch();
     snapshot.forEach(doc => {
@@ -215,7 +217,8 @@ resetRegisteredBtn.addEventListener('click', async () => {
 
     bracketOutput.textContent = '';
     loadRegistrationsToBrackets();
-    if (adminAuthenticated) loadRegistrationsToAdmin();
+    if (authenticatedTabs.admin) loadRegistrationsToAdmin();
+
     alert('All registrations have been reset.');
   } catch (err) {
     console.error("Error resetting registrations:", err);
@@ -223,15 +226,14 @@ resetRegisteredBtn.addEventListener('click', async () => {
   }
 });
 
-// --- BRACKET GENERATION (basic placeholder) ---
+// --- BRACKET GENERATION (placeholder) ---
 
 generateBracketsBtn.addEventListener('click', () => {
   const type = bracketTypeSelect.value;
-  // Simple dummy bracket text
   bracketOutput.textContent = `Generating ${type} brackets...\n\n(Bracket logic not implemented yet)`;
 });
 
-// --- Initialize on page load ---
+// --- INITIALIZATION ---
 
 activateTab('register');
 pinPromptOverlay.style.display = 'none';

@@ -1,296 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Loswingin R6 Tournament</title>
-<style>
-  /* Your original CSS here, unchanged except maybe some minimal adjustments */
-  body {
-    background: linear-gradient(135deg, #ff2a84, #00ffd5);
-    font-family: Arial, sans-serif;
-    color: white;
-    margin: 0; padding: 0;
-  }
-  .tabs {
-    display: flex;
-    justify-content: center;
-    background: #111;
-  }
-  .tab {
-    padding: 1em 2em;
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    user-select: none;
-  }
-  .tab.active {
-    border-bottom: 3px solid #ff2a84;
-    font-weight: bold;
-  }
-  .content {
-    max-width: 600px;
-    margin: 2em auto;
-    padding: 1em;
-    background: rgba(0,0,0,0.5);
-    border-radius: 8px;
-  }
-  #registerForm input, #registerForm button {
-    display: block;
-    margin: 0.5em 0;
-    padding: 0.5em;
-    width: 100%;
-    font-size: 1em;
-  }
-  #playersList {
-    margin-top: 1em;
-  }
-  .hidden {
-    display: none;
-  }
-  #pinPrompt {
-    margin: 1em 0;
-  }
-  #pinInput {
-    padding: 0.5em;
-    width: 100%;
-    font-size: 1em;
-  }
-  button {
-    background: #ff2a84;
-    border: none;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 4px;
-  }
-</style>
-
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loswingin R6 Tournament</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
-<div class="tabs">
-  <div class="tab active" data-tab="register">Register</div>
-  <div class="tab" data-tab="brackets">Brackets</div>
-  <div class="tab" data-tab="admin">Admin</div>
-</div>
-
-<div id="register" class="content">
-  <h2>Player Registration</h2>
-  <form id="registerForm">
-    <input type="text" id="playerName" placeholder="Player Name" required />
-    <input type="text" id="playerTeam" placeholder="Team Name" required />
-    <button type="submit">Register</button>
-  </form>
-  <div id="registerMessage"></div>
-</div>
-
-<div id="brackets" class="content hidden">
-  <h2>Registered Players</h2>
-  <div id="playersList">Loading players...</div>
-
-  <div id="bracketsPinPrompt" class="hidden">
-    <p>Enter PIN to access brackets:</p>
-    <input type="password" id="bracketsPinInput" placeholder="PIN" />
-    <button id="bracketsPinSubmit">Submit</button>
-    <p id="bracketsPinError" style="color:#f66;"></p>
+  <div class="nav">
+    <button onclick="showTab('pay')">Pay to Play</button>
+    <button onclick="showTab('free')">Free to Play</button>
+    <button onclick="showTab('options')">Options</button>
+    <button onclick="enterPin('admin')">Admin</button>
+    <button onclick="enterPin('brackets')">Brackets</button>
   </div>
 
-  <div id="bracketsContent" class="hidden">
-    <!-- Bracket content or generated brackets go here -->
-    <p>Bracket generation coming soon!</p>
+  <div class="tab" id="pay">
+    <h1>Pay to Play</h1>
+    <p>Register below for the competitive tournament.</p>
+    <form id="registerForm">
+      <label>Team Name:</label>
+      <input type="text" id="teamName" required /><br />
+      <label>Gamertags:</label>
+      <input type="text" id="gamertags" required /><br />
+      <label>Contact Info:</label>
+      <input type="text" id="contact" required /><br />
+      <button type="submit">Register</button>
+    </form>
+    <p id="confirmation" class="confirmation"></p>
   </div>
-</div>
 
-<div id="admin" class="content hidden">
-  <h2>Admin Panel</h2>
-  <div id="adminPinPrompt">
-    <p>Enter Admin PIN:</p>
-    <input type="password" id="adminPinInput" placeholder="PIN" />
-    <button id="adminPinSubmit">Submit</button>
-    <p id="adminPinError" style="color:#f66;"></p>
+  <div class="tab" id="free">
+    <h1>Free to Play</h1>
+    <p>No entry fee. Casual fun matches!</p>
   </div>
 
-  <div id="adminContent" class="hidden">
-    <button id="resetPlayersBtn">Reset Registered Players</button>
-    <p id="resetMessage"></p>
+  <div class="tab" id="options">
+    <h1>Options</h1>
+    <p>Customize your experience here.</p>
   </div>
-</div>
 
-<script>
-  // Your Firebase config here
-  const firebaseConfig = {
-    apiKey: "AIzaSyBiNxXtfGy4YbywG4WfsKo-i0oVDz_NTbM",
-    authDomain: "loswingin-r6.firebaseapp.com",
-    projectId: "loswingin-r6",
-    storageBucket: "loswingin-r6.firebasestorage.app",
-    messagingSenderId: "44769835884",
-    appId: "1:44769835884:web:157c7aed1b98442532d149",
-    measurementId: "G-LF4DE76P16"
-  };
+  <div class="tab" id="admin" style="display: none;">
+    <h1>Admin Panel</h1>
+    <button onclick="resetRegistrations()">Reset All Players</button>
+  </div>
 
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+  <div class="tab" id="brackets" style="display: none;">
+    <h1>Registered Teams</h1>
+    <ul id="registeredPlayersList"></ul>
+  </div>
 
-  // PINs for admin and brackets (replace with your own PINs)
-  const ADMIN_PIN = "1234";
-  const BRACKETS_PIN = "5678";
-
-  // Tab switching
-  const tabs = document.querySelectorAll('.tab');
-  const contents = document.querySelectorAll('.content');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      const selectedTab = tab.dataset.tab;
-
-      // If brackets or admin tab, show pin prompt first
-      if (selectedTab === 'admin') {
-        showOnlyTab('admin');
-        showAdminPinPrompt();
-      } else if (selectedTab === 'brackets') {
-        showOnlyTab('brackets');
-        showBracketsPinPrompt();
-      } else {
-        showOnlyTab('register');
-      }
-    });
-  });
-
-  function showOnlyTab(tabId) {
-    contents.forEach(c => c.classList.add('hidden'));
-    document.getElementById(tabId).classList.remove('hidden');
-    tabs.forEach(t => t.classList.remove('active'));
-    document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
-  }
-
-  // Register form submission
-  const registerForm = document.getElementById('registerForm');
-  const registerMessage = document.getElementById('registerMessage');
-  registerForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const name = document.getElementById('playerName').value.trim();
-    const team = document.getElementById('playerTeam').value.trim();
-    if (!name || !team) return;
-
-    db.collection('players').add({
-      name,
-      team,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    })
-    .then(() => {
-      registerMessage.textContent = "Registered successfully!";
-      registerForm.reset();
-      if (currentTab === 'brackets') loadPlayers();
-    })
-    .catch(err => {
-      registerMessage.textContent = "Error: " + err.message;
-    });
-  });
-
-  // Load players list from Firestore
-  const playersList = document.getElementById('playersList');
-  function loadPlayers() {
-    playersList.textContent = "Loading players...";
-    db.collection('players').orderBy('timestamp', 'asc').get()
-      .then(snapshot => {
-        if (snapshot.empty) {
-          playersList.textContent = "No players registered yet.";
-          return;
-        }
-        playersList.innerHTML = '';
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          const div = document.createElement('div');
-          div.textContent = `${data.name} - Team: ${data.team}`;
-          playersList.appendChild(div);
-        });
-      })
-      .catch(err => {
-        playersList.textContent = "Error loading players: " + err.message;
-      });
-  }
-
-  // Admin PIN logic
-  const adminPinInput = document.getElementById('adminPinInput');
-  const adminPinSubmit = document.getElementById('adminPinSubmit');
-  const adminPinError = document.getElementById('adminPinError');
-  const adminPinPrompt = document.getElementById('adminPinPrompt');
-  const adminContent = document.getElementById('adminContent');
-  const resetPlayersBtn = document.getElementById('resetPlayersBtn');
-  const resetMessage = document.getElementById('resetMessage');
-
-  adminPinSubmit.addEventListener('click', () => {
-    if (adminPinInput.value === ADMIN_PIN) {
-      adminPinPrompt.classList.add('hidden');
-      adminContent.classList.remove('hidden');
-      adminPinError.textContent = '';
-    } else {
-      adminPinError.textContent = 'Incorrect PIN';
-    }
-  });
-
-  resetPlayersBtn.addEventListener('click', () => {
-    if (confirm("Are you sure you want to reset all registered players?")) {
-      // Delete all docs in players collection
-      db.collection('players').get().then(snapshot => {
-        const batch = db.batch();
-        snapshot.docs.forEach(doc => batch.delete(doc.ref));
-        return batch.commit();
-      }).then(() => {
-        resetMessage.textContent = "All players reset.";
-        loadPlayers();
-      }).catch(err => {
-        resetMessage.textContent = "Error resetting players: " + err.message;
-      });
-    }
-  });
-
-  // Brackets PIN logic
-  const bracketsPinPrompt = document.getElementById('bracketsPinPrompt');
-  const bracketsPinInput = document.getElementById('bracketsPinInput');
-  const bracketsPinSubmit = document.getElementById('bracketsPinSubmit');
-  const bracketsPinError = document.getElementById('bracketsPinError');
-  const bracketsContent = document.getElementById('bracketsContent');
-
-  bracketsPinSubmit.addEventListener('click', () => {
-    if (bracketsPinInput.value === BRACKETS_PIN) {
-      bracketsPinPrompt.classList.add('hidden');
-      bracketsContent.classList.remove('hidden');
-      bracketsPinError.textContent = '';
-      loadPlayers();
-    } else {
-      bracketsPinError.textContent = 'Incorrect PIN';
-    }
-  });
-
-  function showAdminPinPrompt() {
-    adminPinPrompt.classList.remove('hidden');
-    adminContent.classList.add('hidden');
-    adminPinInput.value = '';
-    adminPinError.textContent = '';
-  }
-  function showBracketsPinPrompt() {
-    bracketsPinPrompt.classList.remove('hidden');
-    bracketsContent.classList.add('hidden');
-    bracketsPinInput.value = '';
-    bracketsPinError.textContent = '';
-  }
-
-  // Track current tab for UI logic if needed
-  let currentTab = 'register';
-
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      currentTab = tab.dataset.tab;
-    });
-  });
-
-  // Initial show register tab
-  showOnlyTab('register');
-
-</script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js"></script>
+  
+  <!-- Main Script -->
+  <script src="script.js"></script>
 </body>
 </html>

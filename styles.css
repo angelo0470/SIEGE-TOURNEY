@@ -1,98 +1,217 @@
+/* Reset and base styles */
+* {
+  box-sizing: border-box;
+}
+
 body {
-  margin: 0;
+  background: linear-gradient(135deg, #ff00cc, #333399);
+  color: white;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #0ff 0%, #f0f 100%);
-  background-attachment: fixed;
-  background-size: cover;
-  overflow-x: hidden;
-  color: white;
-}
-
-header {
-  background: rgba(0, 0, 0, 0.7);
-  padding: 20px;
-  text-align: center;
-  font-size: 2em;
-  color: cyan;
-  text-shadow: 0 0 5px magenta;
-}
-
-nav {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
   display: flex;
-  justify-content: space-around;
-  background: rgba(0, 0, 0, 0.6);
-  padding: 10px;
+  justify-content: center;
+  align-items: flex-start;
 }
 
-nav button {
-  background: magenta;
-  color: white;
-  border: none;
-  padding: 10px 20px;
+.container {
+  max-width: 900px;
+  width: 100%;
+  padding: 20px 30px 40px;
+  background: rgba(20, 20, 40, 0.85);
+  border-radius: 15px;
+  box-shadow:
+    0 0 15px #ff00cc,
+    0 0 30px #ff00cc,
+    0 0 45px #00ffff,
+    0 0 60px #00ffff;
+  margin-top: 40px;
+}
+
+/* Tab navigation */
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.tab-button {
+  background: #1a1a2e;
+  border: 2px solid #ff00cc;
+  padding: 12px 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ff00cc;
   cursor: pointer;
-  font-weight: bold;
-  transition: 0.3s;
-  box-shadow: 0 0 10px cyan;
+  border-radius: 8px;
+  box-shadow: 0 0 6px #ff00cc;
+  transition: all 0.3s ease;
+  user-select: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-nav button:hover {
-  background: cyan;
-  color: black;
-  box-shadow: 0 0 15px magenta;
+.tab-button:hover,
+.tab-button.active {
+  background: #ff00cc;
+  color: #1a1a2e;
+  box-shadow:
+    0 0 10px #ff00cc,
+    0 0 20px #ff00cc,
+    0 0 30px #00ffff,
+    0 0 40px #00ffff;
 }
 
-section {
+/* Tab content */
+.tab-content {
   display: none;
-  padding: 20px;
-  background: rgba(0, 0, 0, 0.5);
-  margin: 10px;
-  border-radius: 10px;
 }
 
-section.active {
+.tab-content.active {
   display: block;
 }
 
-input, select, textarea {
-  width: 100%;
-  padding: 10px;
-  margin: 8px 0;
-  background: #111;
-  color: white;
-  border: 1px solid cyan;
-  border-radius: 5px;
-  box-shadow: 0 0 5px magenta;
+/* Form styles */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
-button.submit {
-  background: cyan;
-  color: black;
-  padding: 10px 20px;
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+  padding: 12px 15px;
+  font-size: 1rem;
+  border-radius: 8px;
   border: none;
-  border-radius: 5px;
-  font-weight: bold;
-  margin-top: 10px;
-  box-shadow: 0 0 10px magenta;
-  transition: 0.3s;
-}
-
-button.submit:hover {
-  background: magenta;
+  outline: none;
+  background: #222244;
   color: white;
-  box-shadow: 0 0 15px cyan;
+  box-shadow:
+    inset 0 0 8px #00ffff,
+    inset 0 0 15px #ff00cc;
+  transition: background-color 0.3s ease;
 }
 
-#confirmationMessage {
-  color: lightgreen;
-  font-weight: bold;
-  margin-top: 10px;
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus {
+  background: #330033;
 }
 
-.players-list, .brackets-section {
-  background: rgba(0, 0, 0, 0.7);
-  border: 1px solid magenta;
-  padding: 10px;
-  border-radius: 10px;
+button[type="submit"],
+button {
+  background: #00ffff;
+  border: none;
+  padding: 12px 25px;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #1a1a2e;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow:
+    0 0 8px #00ffff,
+    0 0 12px #00ffff;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+  text-transform: uppercase;
+}
+
+button[type="submit"]:hover,
+button:hover {
+  background: #00baba;
+  box-shadow:
+    0 0 12px #00baba,
+    0 0 20px #00baba;
+}
+
+/* Confirmation message */
+.confirmation {
+  text-align: center;
+  margin-top: 15px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #00ffcc;
+  text-shadow:
+    0 0 10px #00ffcc,
+    0 0 20px #00ffcc;
+}
+
+/* Registered players list */
+.players-list {
   margin-top: 20px;
-  box-shadow: 0 0 10px cyan;
+  max-height: 250px;
+  overflow-y: auto;
+  background: rgba(255, 0, 204, 0.12);
+  border-radius: 10px;
+  padding: 15px 20px;
+  box-shadow:
+    inset 0 0 8px #ff00cc,
+    inset 0 0 15px #00ffff;
+  color: #ff99ff;
+}
+
+.players-list h3 {
+  margin-top: 0;
+  font-weight: 700;
+  text-align: center;
+  text-shadow: 0 0 8px #ff00cc;
+}
+
+.players-list ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.players-list ul li {
+  padding: 5px 0;
+  border-bottom: 1px solid #ff00cc44;
+  font-weight: 600;
+}
+
+/* Pin input containers */
+#bracketsPinContainer,
+#adminPinContainer {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+#bracketsPinInput,
+#adminPinInput {
+  width: 200px;
+}
+
+/* Admin message */
+#adminMessage {
+  margin-top: 15px;
+  font-weight: 700;
+  text-align: center;
+  color: #ff00cc;
+  text-shadow:
+    0 0 10px #ff00cc;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .tab-button {
+    padding: 10px 15px;
+    font-size: 0.9rem;
+  }
+
+  form {
+    width: 90%;
+  }
+
+  #bracketsPinInput,
+  #adminPinInput {
+    width: 130px;
+  }
 }

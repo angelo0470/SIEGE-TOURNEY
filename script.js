@@ -1,4 +1,4 @@
-// Firebase Configuration
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBiNxXtfGy4YbywG4WfsKo-i0oVDz_NTbM",
   authDomain: "loswingin-r6.firebaseapp.com",
@@ -9,64 +9,82 @@ const firebaseConfig = {
   measurementId: "G-LF4DE76P16"
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Tab Switching
-function showTab(tabId) {
-  document.querySelectorAll(".tab").forEach(tab => tab.style.display = "none");
-  document.getElementById(tabId).style.display = "block";
-}
+const defaultPIN = "1234";
+let currentPIN = localStorage.getItem("adminPIN") || defaultPIN;
 
-// PIN Entry
-function enterPin(section) {
-  const entered = prompt("Enter PIN:");
-  if (entered === "1234") {
-    showTab(section);
-    if (section === "brackets") fetchRegisteredPlayers();
-  } else {
-    alert("Incorrect PIN");
-  }
-}
+document.querySelectorAll('.tab').forEach(button => {
+  button.addEventListener('click', () => {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+    document.getElementById(button.dataset.tab).style.display = 'block';
+  });
+});
 
-// Registration Submission
-document.getElementById("registerForm").addEventListener("submit", async (e) => {
+document.getElementById("register-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const teamName = document.getElementById("teamName").value;
-  const gamertags = document.getElementById("gamertags").value;
-  const contact = document.getElementById("contact").value;
-
+  const name = document.getElementById("playerName").value;
+  const email = document.getElementById("playerEmail").value;
   try {
-    await db.collection("registrations").add({ teamName, gamertags, contact });
-    document.getElementById("confirmation").textContent = "Registration successful!";
-    document.getElementById("registerForm").reset();
-  } catch (error) {
-    console.error("Registration Error:", error);
-    alert("Failed to register.");
+    await db.collection("Registered").add({ name, email });
+    document.getElementById("register-message").textContent = "Registration successful!";
+    document.getElementById("register-form").reset();
+  } catch (err) {
+    document.getElementById("register-message").textContent = "Error saving registration.";
   }
 });
 
-// Fetch Registered Players
-async function fetchRegisteredPlayers() {
-  const list = document.getElementById("registeredPlayersList");
+function checkBracketPIN() {
+  const input = document.getElementById("bracket-pin-input").value;
+  if (input === currentPIN) {
+    document.getElementById("brackets-lock").style.display = "none";
+    document.getElementById("brackets-content").style.display = "block";
+    loadRegisteredPlayers();
+  } else {
+    document.getElementById("bracket-pin-msg").textContent = "Incorrect PIN.";
+  }
+}
+
+function checkAdminPIN() {
+  const input = document.getElementById("admin-pin-input").value;
+  if (input === currentPIN) {
+    document.getElementById("admin-lock").style.display = "none";
+    document.getElementById("admin-panel").style.display = "block";
+  } else {
+    document.getElementById("admin-pin-msg").textContent = "Incorrect PIN.";
+  }
+}
+
+function changePIN() {
+  const newPin = document.getElementById("newPin").value;
+  if (newPin) {
+    currentPIN = newPin;
+    localStorage.setItem("adminPIN", newPin);
+    document.getElementById("pin-change-msg").textContent = "PIN changed!";
+  }
+}
+
+async function loadRegisteredPlayers() {
+  const list = document.getElementById("registered-players-list");
   list.innerHTML = "";
-  const snapshot = await db.collection("registrations").get();
+  const snapshot = await db.collection("Registered").get();
   snapshot.forEach(doc => {
-    const data = doc.data();
-    const item = document.createElement("li");
-    item.textContent = `${data.teamName} | ${data.gamertags} | ${data.contact}`;
-    list.appendChild(item);
+    const li = document.createElement("li");
+    li.textContent = `${doc.data().name} (${doc.data().email})`;
+    list.appendChild(li);
   });
 }
 
-// Admin Reset
-async function resetRegistrations() {
-  if (!confirm("Are you sure you want to delete all registrations?")) return;
-  const snapshot = await db.collection("registrations").get();
+async function resetPlayers() {
+  const snapshot = await db.collection("Registered").get();
   const batch = db.batch();
   snapshot.forEach(doc => batch.delete(doc.ref));
   await batch.commit();
-  alert("All players removed.");
-  fetchRegisteredPlayers();
+  loadRegisteredPlayers();
+  alert("All registered players have been reset.");
+}
+
+function generateBrackets() {
+  alert("Bracket generation coming soon!");
 }

@@ -1,216 +1,191 @@
-// --- Persistent Registered Players ---
-let registeredPlayers = JSON.parse(localStorage.getItem('registeredPlayers')) || [];
+// Store registered players here
+let registeredPlayers = [];
 
-// --- Elements ---
+// Admin PIN (default)
+let adminPin = localStorage.getItem('adminPin') || '1234';
+
+// Elements
 const registerForm = document.getElementById('registerForm');
+const teamNameInput = document.getElementById('teamName');
+const contactInfoInput = document.getElementById('contactInfo');
 const registeredList = document.getElementById('registeredList');
 const adminRegisteredList = document.getElementById('adminRegisteredList');
-const resetRegisteredBtn = document.getElementById('resetRegisteredBtn');
-const generateBracketsBtn = document.getElementById('generateBracketsBtn');
-const bracketOutput = document.getElementById('bracketOutput');
-const bracketTypeSelect = document.getElementById('bracketType');
 
-// PIN and Admin elements
 const pinPromptOverlay = document.getElementById('pinPromptOverlay');
 const pinInput = document.getElementById('pinInput');
 const pinSubmitBtn = document.getElementById('pinSubmitBtn');
 const pinCancelBtn = document.getElementById('pinCancelBtn');
 const pinError = document.getElementById('pinError');
+
 const adminContent = document.getElementById('adminContent');
 const adminStatus = document.getElementById('adminStatus');
-const changePinBtn = document.getElementById('changePinBtn');
+
 const newPinInput = document.getElementById('newPin');
+const changePinBtn = document.getElementById('changePinBtn');
 const pinChangeMsg = document.getElementById('pinChangeMsg');
+
+const bracketTypeSelect = document.getElementById('bracketType');
+const generateBracketsBtn = document.getElementById('generateBracketsBtn');
+const bracketOutput = document.getElementById('bracketOutput');
+
+const resetRegisteredBtn = document.getElementById('resetRegisteredBtn');
+
+// Tab navigation
 const tabLinks = document.querySelectorAll('.tab-link');
+const tabs = document.querySelectorAll('.tab');
 
-// --- Admin PIN storage ---
-let adminPIN = localStorage.getItem('adminPIN') || '1234'; // default PIN
+tabLinks.forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const tabName = link.getAttribute('data-tab');
 
-// --- Utility Functions ---
+    // If tab is pin protected, prompt for PIN first
+    if (link.classList.contains('pin-protected')) {
+      showPinPrompt(tabName);
+    } else {
+      showTab(tabName);
+    }
+  });
+});
 
-function updateRegisteredLists() {
-  registeredList.innerHTML = '';
-  adminRegisteredList.innerHTML = '';
-  registeredPlayers.forEach(({ teamName, contactInfo }) => {
-    const liUser = document.createElement('li');
-    liUser.textContent = `${teamName} — ${contactInfo}`;
-    registeredList.appendChild(liUser);
-
-    const liAdmin = liUser.cloneNode(true);
-    adminRegisteredList.appendChild(liAdmin);
+function showTab(tabName) {
+  tabs.forEach(tab => {
+    tab.classList.toggle('active', tab.id === tabName);
+  });
+  tabLinks.forEach(link => {
+    link.classList.toggle('active', link.getAttribute('data-tab') === tabName);
   });
 }
 
-function saveRegisteredPlayers() {
-  localStorage.setItem('registeredPlayers', JSON.stringify(registeredPlayers));
+// Show PIN prompt overlay and store target tab
+let pendingTab = null;
+function showPinPrompt(tabName) {
+  pendingTab = tabName;
+  pinInput.value = '';
+  pinError.textContent = '';
+  pinPromptOverlay.style.display = 'flex';
+  pinInput.focus();
 }
 
-function clearBracketOutput() {
-  bracketOutput.textContent = '';
-}
-
-// --- Event Listeners ---
-
-// Register form submission
-registerForm.addEventListener('submit', e => {
-  e.preventDefault();
-  const teamName = document.getElementById('teamName').value.trim();
-  const contactInfo = document.getElementById('contactInfo').value.trim();
-
-  if (!teamName || !contactInfo) return;
-
-  registeredPlayers.push({ teamName, contactInfo });
-  saveRegisteredPlayers();
-  updateRegisteredLists();
-  registerForm.reset();
-  alert('Registration successful!');
-});
-
-// Reset registered players
-resetRegisteredBtn.addEventListener('click', () => {
-  if (confirm('Are you sure you want to reset all registered players?')) {
-    registeredPlayers = [];
-    saveRegisteredPlayers();
-    updateRegisteredLists();
-    clearBracketOutput();
-  }
-});
-
-// PIN Prompt handlers
 pinSubmitBtn.addEventListener('click', () => {
-  const enteredPIN = pinInput.value.trim();
-  if (enteredPIN === adminPIN) {
-    pinError.textContent = '';
+  const enteredPin = pinInput.value;
+  if (enteredPin === adminPin) {
     pinPromptOverlay.style.display = 'none';
-    pinInput.value = '';
     pinError.textContent = '';
-    openTab(lockedTab);
-    if (lockedTab === 'admin') {
-      adminStatus.style.display = 'none';
-      adminContent.style.display = 'block';
+    showTab(pendingTab);
+    if (pendingTab === 'admin') {
+      showAdminPanel();
     }
+    pendingTab = null;
   } else {
     pinError.textContent = 'Incorrect PIN. Try again.';
+    pinInput.focus();
   }
 });
 
 pinCancelBtn.addEventListener('click', () => {
   pinPromptOverlay.style.display = 'none';
-  pinInput.value = '';
-  pinError.textContent = '';
-  lockedTab = null;
-  openTab('register');
+  pendingTab = null;
 });
 
-// Tab switching with PIN protection
-let lockedTab = null;
-tabLinks.forEach(link => {
-  link.addEventListener('click', e => {
-    e.preventDefault();
-    const tab = link.dataset.tab;
-
-    if (link.classList.contains('pin-protected')) {
-      lockedTab = tab;
-      pinPromptOverlay.style.display = 'flex';
-      pinInput.focus();
-    } else {
-      openTab(tab);
-    }
-  });
-});
-
-function openTab(tabName) {
-  document.querySelectorAll('.tab').forEach(t => {
-    t.classList.toggle('active', t.id === tabName);
-  });
-  tabLinks.forEach(link => {
-    link.classList.toggle('active', link.dataset.tab === tabName);
-  });
-
-  // Reset admin view if leaving admin tab
-  if (tabName !== 'admin') {
-    adminStatus.style.display = 'block';
-    adminContent.style.display = 'none';
-  }
-  lockedTab = null;
-  clearBracketOutput();
+function showAdminPanel() {
+  adminStatus.style.display = 'none';
+  adminContent.style.display = 'block';
+  updateAdminRegisteredList();
 }
 
-// Change Admin PIN
-changePinBtn.addEventListener('click', () => {
-  const newPin = newPinInput.value.trim();
-  if (newPin.length < 4) {
-    pinChangeMsg.style.color = 'red';
-    pinChangeMsg.textContent = 'PIN must be at least 4 digits.';
-    return;
+// Register form submit
+registerForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const teamName = teamNameInput.value.trim();
+  const contactInfo = contactInfoInput.value.trim();
+
+  if (teamName && contactInfo) {
+    const newPlayer = { teamName, contactInfo };
+    registeredPlayers.push(newPlayer);
+    saveRegisteredPlayers();
+    updateRegisteredLists();
+    registerForm.reset();
+    alert('Registration successful!');
   }
-  adminPIN = newPin;
-  localStorage.setItem('adminPIN', adminPIN);
-  pinChangeMsg.style.color = 'lime';
-  pinChangeMsg.textContent = 'Admin PIN changed successfully.';
-  newPinInput.value = '';
 });
 
-// Generate brackets (simple random pairing)
+// Update the registered players lists (both views)
+function updateRegisteredLists() {
+  // User view
+  registeredList.innerHTML = '';
+  registeredPlayers.forEach((player, idx) => {
+    const li = document.createElement('li');
+    li.textContent = `${player.teamName} - ${player.contactInfo}`;
+    registeredList.appendChild(li);
+  });
+
+  // Admin view
+  updateAdminRegisteredList();
+}
+
+function updateAdminRegisteredList() {
+  adminRegisteredList.innerHTML = '';
+  registeredPlayers.forEach((player, idx) => {
+    const li = document.createElement('li');
+    li.textContent = `${player.teamName} - ${player.contactInfo}`;
+    adminRegisteredList.appendChild(li);
+  });
+}
+
+// Save to localStorage
+function saveRegisteredPlayers() {
+  localStorage.setItem('registeredPlayers', JSON.stringify(registeredPlayers));
+}
+
+// Load from localStorage
+function loadRegisteredPlayers() {
+  const stored = localStorage.getItem('registeredPlayers');
+  if (stored) {
+    registeredPlayers = JSON.parse(stored);
+  } else {
+    registeredPlayers = [];
+  }
+}
+
+// Change admin PIN
+changePinBtn.addEventListener('click', () => {
+  const newPin = newPinInput.value.trim();
+  if (newPin.length >= 4) {
+    adminPin = newPin;
+    localStorage.setItem('adminPin', adminPin);
+    pinChangeMsg.textContent = 'PIN changed successfully.';
+    newPinInput.value = '';
+  } else {
+    pinChangeMsg.textContent = 'PIN must be at least 4 characters.';
+  }
+});
+
+// Generate brackets (simple example)
 generateBracketsBtn.addEventListener('click', () => {
+  const type = bracketTypeSelect.value;
   if (registeredPlayers.length === 0) {
     alert('No registered players to generate brackets.');
     return;
   }
-
-  const bracketType = bracketTypeSelect.value;
-  let playersNeeded = 0;
-
-  switch (bracketType) {
-    case '5v5':
-      playersNeeded = 10;
-      break;
-    case '2v2':
-      playersNeeded = 4;
-      break;
-    case '1v1':
-      playersNeeded = 2;
-      break;
-  }
-
-  if (registeredPlayers.length < playersNeeded) {
-    alert(`Not enough players for ${bracketType} bracket (need ${playersNeeded}).`);
-    return;
-  }
-
-  // Shuffle players
-  const shuffled = registeredPlayers.slice().sort(() => Math.random() - 0.5);
-
-  // Take the needed number
-  const bracketPlayers = shuffled.slice(0, playersNeeded);
-
-  // Format output
-  let outputText = `${bracketType} Bracket:\n\n`;
-
-  for (let i = 0; i < bracketPlayers.length; i += (bracketType === '1v1' ? 2 : bracketType === '2v2' ? 2 : 10)) {
-    if (bracketType === '5v5') {
-      outputText += `Match ${i / 10 + 1}:\n`;
-      outputText += 'Team 1:\n';
-      bracketPlayers.slice(i, i + 5).forEach(p => outputText += `  - ${p.teamName}\n`);
-      outputText += 'Team 2:\n';
-      bracketPlayers.slice(i + 5, i + 10).forEach(p => outputText += `  - ${p.teamName}\n`);
-      outputText += '\n';
-    } else if (bracketType === '2v2') {
-      outputText += `Match ${i / 4 + 1}:\n`;
-      outputText += 'Team 1:\n';
-      bracketPlayers.slice(i, i + 2).forEach(p => outputText += `  - ${p.teamName}\n`);
-      outputText += 'Team 2:\n';
-      bracketPlayers.slice(i + 2, i + 4).forEach(p => outputText += `  - ${p.teamName}\n`);
-      outputText += '\n';
-    } else if (bracketType === '1v1') {
-      outputText += `Match ${i / 2 + 1}:\n`;
-      outputText += `  ${bracketPlayers[i].teamName} VS ${bracketPlayers[i + 1].teamName}\n\n`;
-    }
-  }
-
-  bracketOutput.textContent = outputText;
+  // Simple output: just list players grouped by bracket type
+  let output = `Bracket Type: ${type}\n\n`;
+  registeredPlayers.forEach((player, idx) => {
+    output += `${idx + 1}. ${player.teamName} (${player.contactInfo})\n`;
+  });
+  bracketOutput.textContent = output;
 });
 
-// Initialize UI
+// Reset registered players - visible in brackets tab and Admin tab
+resetRegisteredBtn.addEventListener('click', () => {
+  if (confirm('Are you sure you want to reset all registered players?')) {
+    registeredPlayers = [];
+    saveRegisteredPlayers();
+    updateRegisteredLists();
+    bracketOutput.textContent = '';
+  }
+});
+
+// Initialize on page load
+loadRegisteredPlayers();
 updateRegisteredLists();
-openTab('register');

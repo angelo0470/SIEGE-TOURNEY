@@ -1,176 +1,129 @@
-// Initial admin PIN (can be changed)
-let adminPin = localStorage.getItem('adminPin') || '1234';
+// Your Firebase config here (replace with your actual values)
+const firebaseConfig = {
+  apiKey: "AIzaSyBiNxXtfGy4YbywG4WfsKo-i0oVDz_NTbM",
+  authDomain: "loswingin-r6.firebaseapp.com",
+  projectId: "loswingin-r6",
+  storageBucket: "loswingin-r6.appspot.com",
+  messagingSenderId: "44769835884",
+  appId: "1:44769835884:web:157c7aed1b98442532d149",
+  measurementId: "G-LF4DE76P16"
+};
 
-// Elements
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 const tabs = document.querySelectorAll('.tab-link');
-const tabSections = document.querySelectorAll('.tab');
-const registerForm = document.getElementById('registerForm');
-const registeredList = document.getElementById('registeredList');
-const adminRegisteredList = document.getElementById('adminRegisteredList');
-const resetRegisteredBtn = document.getElementById('resetRegisteredBtn');
-const resetRegisteredBtnAdmin = document.createElement('button'); // Will create a reset button in admin too
-const adminContent = document.getElementById('adminContent');
-const adminStatus = document.getElementById('adminStatus');
-const pinPromptOverlay = document.getElementById('pinPromptOverlay');
-const pinInput = document.getElementById('pinInput');
-const pinSubmitBtn = document.getElementById('pinSubmitBtn');
-const pinCancelBtn = document.getElementById('pinCancelBtn');
-const pinError = document.getElementById('pinError');
-const newPinInput = document.getElementById('newPin');
-const changePinBtn = document.getElementById('changePinBtn');
-const pinChangeMsg = document.getElementById('pinChangeMsg');
+const sections = document.querySelectorAll('.tab');
 
-let currentPinProtectedTab = null;
-
-// Helper: Get registrations from localStorage
-function getRegistrations() {
-  return JSON.parse(localStorage.getItem('registrations') || '[]');
-}
-
-// Helper: Save registrations to localStorage
-function saveRegistrations(regs) {
-  localStorage.setItem('registrations', JSON.stringify(regs));
-}
-
-// Render registrations list in given UL element
-function renderRegistrationsList(ulElement) {
-  const regs = getRegistrations();
-  ulElement.innerHTML = '';
-  if (regs.length === 0) {
-    const li = document.createElement('li');
-    li.textContent = 'No registered players or teams yet.';
-    ulElement.appendChild(li);
-    return;
-  }
-  regs.forEach(({teamName, contactInfo}, index) => {
-    const li = document.createElement('li');
-    li.textContent = `${teamName} — ${contactInfo}`;
-    ulElement.appendChild(li);
-  });
-}
-
-// Switch tabs
 tabs.forEach(tab => {
   tab.addEventListener('click', e => {
     e.preventDefault();
-    const targetTab = tab.getAttribute('data-tab');
-
-    if (tab.classList.contains('pin-protected')) {
-      // Show PIN prompt overlay
-      currentPinProtectedTab = targetTab;
-      pinError.textContent = '';
-      pinInput.value = '';
-      pinPromptOverlay.style.display = 'flex';
-      pinInput.focus();
+    if (tab.classList.contains('pin-protected') && !adminAuthenticated) {
+      showPinPrompt(tab.dataset.tab);
       return;
     }
-
-    // Show the tab directly
-    showTab(targetTab);
+    activateTab(tab.dataset.tab);
   });
 });
 
-function showTab(tabName) {
-  tabSections.forEach(section => {
-    section.classList.toggle('active', section.id === tabName);
-  });
-  tabs.forEach(tab => {
-    tab.classList.toggle('active', tab.getAttribute('data-tab') === tabName);
-  });
-
-  if (tabName === 'brackets') {
-    renderRegistrationsList(registeredList);
-  }
-  if (tabName === 'admin') {
-    renderRegistrationsList(adminRegisteredList);
-  }
+function activateTab(tabName) {
+  tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+  sections.forEach(s => s.classList.toggle('active', s.id === tabName));
+  if (tabName === 'brackets') loadRegistrationsToBrackets();
+  if (tabName === 'admin' && adminAuthenticated) loadRegistrationsToAdmin();
 }
 
-// Handle PIN submission
-pinSubmitBtn.addEventListener('click', () => {
-  const enteredPin = pinInput.value.trim();
-  if (enteredPin === adminPin) {
+let adminAuthenticated = false;
+
+const pinPromptOverlay = document.getElementById('pinPromptOverlay');
+const pinInput = document.getElementById('pinInput');
+const pinError = document.getElementById('pinError');
+let pendingTab = null;
+
+document.getElementById('pinSubmitBtn').addEventListener('click', () => {
+  const pin = pinInput.value.trim();
+  if (pin === adminPin) {
+    adminAuthenticated = true;
     pinPromptOverlay.style.display = 'none';
     pinError.textContent = '';
-    showTab(currentPinProtectedTab);
-    if (currentPinProtectedTab === 'admin') {
-      adminContent.style.display = 'block';
-      adminStatus.style.display = 'none';
-    }
-    if (currentPinProtectedTab === 'brackets') {
-      renderRegistrationsList(registeredList);
-    }
+    activateTab(pendingTab);
+    pendingTab = null;
+    document.getElementById('adminStatus').textContent = "Admin access granted.";
+    document.getElementById('adminContent').style.display = 'block';
+    loadRegistrationsToAdmin();
   } else {
-    pinError.textContent = 'Incorrect PIN. Try again.';
+    pinError.textContent = 'Incorrect PIN.';
   }
+  pinInput.value = '';
 });
 
-pinCancelBtn.addEventListener('click', () => {
+document.getElementById('pinCancelBtn').addEventListener('click', () => {
   pinPromptOverlay.style.display = 'none';
-  currentPinProtectedTab = null;
+  pinError.textContent = '';
+  pendingTab = null;
+  activateTab('register');
 });
 
-// Register form submit
-registerForm.addEventListener('submit', e => {
+function showPinPrompt(tabName) {
+  pendingTab = tabName;
+  pinPromptOverlay.style.display = 'flex';
+  pinInput.focus();
+}
+
+let adminPin = localStorage.getItem('adminPin') || '1234';
+
+// Change admin PIN
+document.getElementById('changePinBtn').addEventListener('click', () => {
+  const newPin = document.getElementById('newPin').value.trim();
+  if (newPin.length < 4) {
+    document.getElementById('pinChangeMsg').textContent = 'PIN must be at least 4 characters.';
+    return;
+  }
+  adminPin = newPin;
+  localStorage.setItem('adminPin', adminPin);
+  document.getElementById('pinChangeMsg').textContent = 'PIN changed successfully.';
+  document.getElementById('newPin').value = '';
+});
+
+// Register form submission
+const registerForm = document.getElementById('registerForm');
+const registerMsg = document.getElementById('registerMsg');
+
+registerForm.addEventListener('submit', async e => {
   e.preventDefault();
   const teamName = document.getElementById('teamName').value.trim();
   const contactInfo = document.getElementById('contactInfo').value.trim();
 
   if (!teamName || !contactInfo) return;
 
-  const regs = getRegistrations();
-  regs.push({ teamName, contactInfo });
-  saveRegistrations(regs);
-
-  registerForm.reset();
-  alert('Registration successful!');
-
-  // Update displayed lists if visible
-  if (document.getElementById('brackets').classList.contains('active')) {
-    renderRegistrationsList(registeredList);
+  try {
+    await db.collection('registrations').add({
+      teamName,
+      contactInfo,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    registerMsg.textContent = "Registration successful!";
+    registerForm.reset();
+    if (document.getElementById('brackets').classList.contains('active')) {
+      loadRegistrationsToBrackets();
+    }
+  } catch (err) {
+    registerMsg.textContent = "Failed to register. Try again.";
+    console.error(err);
   }
-  if (document.getElementById('admin').classList.contains('active')) {
-    renderRegistrationsList(adminRegisteredList);
-  }
+  setTimeout(() => registerMsg.textContent = '', 3000);
 });
 
-// Reset registered players button (Brackets tab)
-resetRegisteredBtn.addEventListener('click', () => {
-  if (confirm('Are you sure you want to reset all registered players? This cannot be undone.')) {
-    localStorage.removeItem('registrations');
-    renderRegistrationsList(registeredList);
-    renderRegistrationsList(adminRegisteredList);
-  }
-});
-
-// Also add reset button in admin panel below registered list
-resetRegisteredBtnAdmin.textContent = 'Reset Registered Players';
-resetRegisteredBtnAdmin.classList.add('danger');
-resetRegisteredBtnAdmin.style.marginTop = '10px';
-adminContent.appendChild(resetRegisteredBtnAdmin);
-
-resetRegisteredBtnAdmin.addEventListener('click', () => {
-  if (confirm('Are you sure you want to reset all registered players? This cannot be undone.')) {
-    localStorage.removeItem('registrations');
-    renderRegistrationsList(registeredList);
-    renderRegistrationsList(adminRegisteredList);
-  }
-});
-
-// Change Admin PIN
-changePinBtn.addEventListener('click', () => {
-  const newPin = newPinInput.value.trim();
-  if (newPin.length < 4) {
-    pinChangeMsg.style.color = 'red';
-    pinChangeMsg.textContent = 'PIN must be at least 4 digits.';
-    return;
-  }
-  adminPin = newPin;
-  localStorage.setItem('adminPin', adminPin);
-  pinChangeMsg.style.color = 'green';
-  pinChangeMsg.textContent = 'Admin PIN updated successfully.';
-  newPinInput.value = '';
-});
-
-// On initial load, show the Register tab by default
-showTab('register');
+// Load registrations for Brackets tab
+async function loadRegistrationsToBrackets() {
+  const list = document.getElementById('registeredList');
+  list.innerHTML = 'Loading...';
+  try {
+    const snapshot = await db.collection('registrations').orderBy('timestamp', 'asc').get();
+    if (snapshot.empty) {
+      list.innerHTML = '<li>No registrations yet.</li>';
+      return;
+    }
+    list.innerHTML = '';
+    snapshot.forEach(doc

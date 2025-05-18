@@ -1,4 +1,3 @@
-// Your Firebase config here (replace with your actual values)
 const firebaseConfig = {
   apiKey: "AIzaSyBiNxXtfGy4YbywG4WfsKo-i0oVDz_NTbM",
   authDomain: "loswingin-r6.firebaseapp.com",

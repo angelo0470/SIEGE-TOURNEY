@@ -1,118 +1,161 @@
-// Firebase config (already initialized in HTML)
+// Initialize Firebase (make sure to include your Firebase config here)
+const firebaseConfig = {
+  apiKey: "AIzaSyBiNxXtfGy4YbywG4WfsKo-i0oVDz_NTbM",
+  authDomain: "loswingin-r6.firebaseapp.com",
+  projectId: "loswingin-r6",
+  storageBucket: "loswingin-r6.firebasestorage.app",
+  messagingSenderId: "44769835884",
+  appId: "1:44769835884:web:157c7aed1b98442532d149",
+  measurementId: "G-LF4DE76P16"
+};
+
+// Firebase compat initialization
+firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-let adminPin = '1234';
+// Admin and Brackets PINs
+const ADMIN_PIN = "1234";
+const BRACKETS_PIN = "4321";
 
-// Tab Switching
-document.querySelectorAll('.tab-link').forEach(tab => {
-  tab.addEventListener('click', (e) => {
-    e.preventDefault();
-    if (tab.classList.contains('pin-protected')) {
-      document.getElementById('pinPromptOverlay').style.display = 'flex';
-      document.getElementById('pinInput').dataset.tabTarget = tab.dataset.tab;
-    } else {
-      switchTab(tab.dataset.tab);
+// DOM Elements
+const tabs = document.querySelectorAll('.tab');
+const registerTabContent = document.getElementById('register');
+const bracketsTabContent = document.getElementById('brackets');
+const adminTabContent = document.getElementById('admin');
+const playersTableBody = document.querySelector('#playersTable tbody');
+const registerForm = document.getElementById('registerForm');
+const registerMessage = document.getElementById('registerMessage');
+const adminPinInput = document.getElementById('adminPinInput');
+const adminPinBtn = document.getElementById('adminPinBtn');
+const adminControls = document.getElementById('adminControls');
+const adminMessage = document.getElementById('adminMessage');
+
+let isAdminAuthenticated = false;
+let isBracketsAuthenticated = false;
+
+// Tab switching with PIN protection
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const selected = tab.getAttribute('data-tab');
+
+    if ((selected === 'admin' && !isAdminAuthenticated) ||
+        (selected === 'brackets' && !isBracketsAuthenticated)) {
+      alert('Please enter the correct PIN to access this tab.');
+      return;
+    }
+
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    registerTabContent.classList.add('hidden');
+    bracketsTabContent.classList.add('hidden');
+    adminTabContent.classList.add('hidden');
+
+    if (selected === 'register') {
+      registerTabContent.classList.remove('hidden');
+    } else if (selected === 'brackets') {
+      bracketsTabContent.classList.remove('hidden');
+      loadRegisteredPlayers();
+    } else if (selected === 'admin') {
+      adminTabContent.classList.remove('hidden');
     }
   });
 });
 
-// PIN Submission
-document.getElementById('pinSubmitBtn').addEventListener('click', () => {
-  const enteredPin = document.getElementById('pinInput').value;
-  const targetTab = document.getElementById('pinInput').dataset.tabTarget;
-  if (enteredPin === adminPin) {
-    document.getElementById('pinPromptOverlay').style.display = 'none';
-    document.getElementById('pinInput').value = '';
-    document.getElementById('pinError').textContent = '';
-    switchTab(targetTab);
-    if (targetTab === 'admin') showAdminContent();
-  } else {
-    document.getElementById('pinError').textContent = 'Incorrect PIN.';
-  }
-});
-
-document.getElementById('pinCancelBtn').addEventListener('click', () => {
-  document.getElementById('pinPromptOverlay').style.display = 'none';
-  document.getElementById('pinInput').value = '';
-  document.getElementById('pinError').textContent = '';
-});
-
-function switchTab(tabId) {
-  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-  document.getElementById(tabId).classList.add('active');
-
-  document.querySelectorAll('.tab-link').forEach(link => link.classList.remove('active'));
-  document.querySelector(`.tab-link[data-tab="${tabId}"]`).classList.add('active');
-
-  if (tabId === 'brackets') loadRegisteredPlayers();
-}
-
-// Registration Form
-document.getElementById('registerForm').addEventListener('submit', async (e) => {
+// Register form submit handler
+registerForm.addEventListener('submit', async (e) => {
   e.preventDefault();
+  registerMessage.textContent = "";
+  registerMessage.style.color = "#0f0";
+
+  const playerName = document.getElementById('playerName').value.trim();
   const teamName = document.getElementById('teamName').value.trim();
-  const contactInfo = document.getElementById('contactInfo').value.trim();
-  if (teamName && contactInfo) {
-    await db.collection('registrations').add({ teamName, contactInfo, timestamp: Date.now() });
-    document.getElementById('registerForm').reset();
-    alert('Registered successfully!');
+
+  if (!playerName) {
+    registerMessage.style.color = "#f00";
+    registerMessage.textContent = "Player name is required.";
+    return;
+  }
+
+  try {
+    await db.collection("registeredPlayers").add({
+      playerName,
+      teamName,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    registerMessage.textContent = "Registration successful!";
+    registerForm.reset();
+  } catch (error) {
+    registerMessage.style.color = "#f00";
+    registerMessage.textContent = "Error registering: " + error.message;
   }
 });
 
+// Load registered players from Firestore
 async function loadRegisteredPlayers() {
-  const list = document.getElementById('registeredList');
-  list.innerHTML = '';
-  const snapshot = await db.collection('registrations').orderBy('timestamp', 'desc').get();
-  snapshot.forEach(doc => {
-    const li = document.createElement('li');
-    li.textContent = `${doc.data().teamName} - ${doc.data().contactInfo}`;
-    list.appendChild(li);
-  });
+  playersTableBody.innerHTML = "";
+  try {
+    const snapshot = await db.collection("registeredPlayers").orderBy("timestamp").get();
+    if (snapshot.empty) {
+      playersTableBody.innerHTML = `<tr><td colspan="2">No registered players found.</td></tr>`;
+      return;
+    }
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${data.playerName || ''}</td>
+        <td>${data.teamName || ''}</td>
+      `;
+      playersTableBody.appendChild(tr);
+    });
+  } catch (error) {
+    playersTableBody.innerHTML = `<tr><td colspan="2">Error loading players: ${error.message}</td></tr>`;
+  }
 }
 
-// Admin Content
-function showAdminContent() {
-  document.getElementById('adminContent').style.display = 'block';
-  loadAdminList();
-}
-
-async function loadAdminList() {
-  const list = document.getElementById('adminRegisteredList');
-  list.innerHTML = '';
-  const snapshot = await db.collection('registrations').orderBy('timestamp', 'desc').get();
-  snapshot.forEach(doc => {
-    const li = document.createElement('li');
-    li.textContent = `${doc.data().teamName} - ${doc.data().contactInfo}`;
-    list.appendChild(li);
-  });
-}
-
-// Change Admin PIN
-document.getElementById('changePinBtn').addEventListener('click', () => {
-  const newPin = document.getElementById('newPin').value.trim();
-  if (newPin) {
-    adminPin = newPin;
-    document.getElementById('pinChangeMsg').textContent = 'PIN updated!';
-    document.getElementById('newPin').value = '';
+// Admin PIN button handler
+adminPinBtn.addEventListener('click', () => {
+  const pin = adminPinInput.value.trim();
+  if (pin === ADMIN_PIN) {
+    isAdminAuthenticated = true;
+    adminControls.classList.remove('hidden');
+    adminMessage.style.color = "#0f0";
+    adminMessage.textContent = "Admin access granted.";
+    adminPinInput.value = "";
+  } else if (pin === BRACKETS_PIN) {
+    isBracketsAuthenticated = true;
+    alert("Brackets access granted.");
+    adminPinInput.value = "";
+    // Switch to brackets tab automatically
+    document.querySelector('.tab[data-tab="brackets"]').click();
+  } else {
+    adminMessage.style.color = "#f00";
+    adminMessage.textContent = "Incorrect PIN.";
+    adminControls.classList.add('hidden');
   }
 });
 
-// Reset Players
-document.getElementById('resetRegisteredBtn').addEventListener('click', async () => {
-  const confirmReset = confirm('Are you sure you want to delete all registrations?');
-  if (!confirmReset) return;
+// Reset registered players button handler
+document.getElementById('resetPlayersBtn').addEventListener('click', async () => {
+  if (!confirm("Are you sure you want to reset all registered players?")) return;
 
-  const snapshot = await db.collection('registrations').get();
-  const batch = db.batch();
-  snapshot.forEach(doc => batch.delete(doc.ref));
-  await batch.commit();
+  try {
+    const snapshot = await db.collection("registeredPlayers").get();
+    const batch = db.batch();
+    snapshot.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+
+    adminMessage.style.color = "#0f0";
+    adminMessage.textContent = "All registered players have been reset.";
+    loadRegisteredPlayers();
+  } catch (error) {
+    adminMessage.style.color = "#f00";
+    adminMessage.textContent = "Error resetting players: " + error.message;
+  }
+});
+
+// Initial load of players if brackets authenticated
+if (isBracketsAuthenticated) {
   loadRegisteredPlayers();
-  loadAdminList();
-  alert('All registrations deleted.');
-});
-
-// Placeholder for bracket generation
-document.getElementById('generateBracketsBtn').addEventListener('click', () => {
-  const type = document.getElementById('bracketType').value;
-  document.getElementById('bracketOutput').textContent = `Bracket for ${type} will be generated here.`;
-});
+}

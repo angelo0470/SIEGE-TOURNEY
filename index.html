@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Loswingin R6 Siege Tournament</title>
   <link rel="stylesheet" href="styles.css" />
+
+  <!-- Firebase JS SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
   <header>
@@ -61,6 +65,7 @@
         <h3>Change Admin PIN</h3>
         <input type="password" id="newPin" placeholder="New PIN" />
         <button id="changePinBtn">Change PIN</button>
+        <button id="adminResetBtn" class="danger">Reset Registered Players</button>
         <p id="pinChangeMsg"></p>
       </div>
     </section>

@@ -1,144 +1,107 @@
 body {
-  margin: 0; padding: 0;
-  background: linear-gradient(135deg, #ff00cc, #333399);
+  margin: 0;
+  padding: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: white;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  color: #fff;
+  display: flex;
   height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.container {
-  display: flex;
-  width: 900px;
-  max-width: 95vw;
-  background: rgba(20,20,40,0.85);
-  border-radius: 15px;
-  box-shadow:
-    0 0 15px #ff00cc,
-    0 0 30px #ff00cc,
-    0 0 45px #00ffff,
-    0 0 60px #00ffff;
   overflow: hidden;
-  height: 600px;
 }
-.tabs {
-  flex-shrink: 0;
-  width: 150px;
-  background: #1a1a2e;
+
+.main-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.tab-menu {
+  width: 200px;
+  background: rgba(0, 0, 0, 0.7);
+  border-right: 2px solid #ff00ff;
   display: flex;
   flex-direction: column;
-  border-right: 2px solid #ff00cc;
+  justify-content: start;
+  padding: 10px;
 }
-.tab-button {
-  padding: 15px 10px;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #ff00cc;
-  border: none;
+
+.tab-menu button {
   background: transparent;
+  border: 2px solid #00ffff;
+  color: #fff;
+  padding: 12px;
+  margin: 10px 0;
+  font-size: 16px;
   cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-left: 4px solid transparent;
-  transition: all 0.3s ease;
-  user-select: none;
+  transition: 0.3s;
+  border-radius: 4px;
+  text-align: left;
 }
-.tab-button:hover,
-.tab-button.active {
-  background: #ff00cc;
-  color: #1a1a2e;
-  border-left-color: #00ffff;
-  box-shadow:
-    inset 4px 0 6px #00ffff,
-    0 0 8px #ff00cc,
-    0 0 15px #00ffff;
+
+.tab-menu button:hover {
+  background: rgba(255, 0, 255, 0.2);
+  box-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
 }
-.tab-content {
+
+.tab-content-container {
   flex-grow: 1;
-  padding: 30px;
+  padding: 20px;
   overflow-y: auto;
+  background: url('images/parallax-wall.png') no-repeat center center fixed;
+  background-size: cover;
+}
+
+.tab-content {
   display: none;
 }
-.tab-content.active {
-  display: block;
+
+.tab-content h2 {
+  color: #00ffff;
+  border-bottom: 2px solid #ff00ff;
+  padding-bottom: 10px;
 }
 
-/* Form styles */
 form {
-  max-width: 500px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  width: 300px;
 }
-label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: 600;
+
+form label {
+  margin-top: 10px;
 }
-input, select {
-  width: 100%;
-  padding: 8px 10px;
-  margin-bottom: 15px;
-  border-radius: 5px;
-  border: 1px solid #444;
-  background: #222;
+
+form input {
+  padding: 10px;
+  margin-top: 5px;
+  background: #111;
+  border: 1px solid #ff00ff;
   color: #fff;
-  font-size: 1rem;
+  border-radius: 4px;
 }
-input::placeholder {
-  color: #888;
-}
-button {
-  background: #ff00cc;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 6px;
-  color: #1a1a2e;
-  font-weight: 700;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background 0.3s ease;
-}
-button:hover {
+
+form button {
+  margin-top: 20px;
+  padding: 12px;
   background: #00ffff;
-  color: #111;
+  color: #000;
+  border: none;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-/* Players list styling */
-.players-list {
-  max-width: 700px;
-  margin: 0 auto;
-}
-.players-list h3 {
-  margin-bottom: 15px;
-}
-.player-item {
-  background: #222;
-  border-radius: 6px;
-  padding: 10px 15px;
-  margin-bottom: 8px;
-  font-weight: 600;
-  color: #ccc;
+form button:hover {
+  background: #ff00ff;
+  color: #fff;
+  box-shadow: 0 0 10px #ff00ff;
 }
 
-/* Admin section */
-#admin input[type="password"] {
-  width: calc(100% - 20px);
-}
-#admin .pin-input {
-  margin-bottom: 15px;
-}
-#admin button.reset-btn {
-  background: #ff0066;
-  margin-top: 10px;
-}
-#admin button.reset-btn:hover {
-  background: #cc0044;
-}
-
-/* Confirmation message */
-.confirmation {
-  text-align: center;
-  margin-top: 10px;
-  font-weight: 700;
-  color: #0f0;
+#registeredPlayers {
+  margin-top: 20px;
+  background: rgba(0,0,0,0.4);
+  padding: 15px;
+  border: 1px solid #00ffff;
+  border-radius: 8px;
 }

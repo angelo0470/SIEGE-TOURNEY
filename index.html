@@ -3,74 +3,61 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Loswingin Tournament</title>
+  <title>Loswingin R6 Tournament</title>
   <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="container">
-    <nav class="sidebar">
-      <button class="tab-button" onclick="switchTab('payTab')">Pay to Play</button>
-      <button class="tab-button" onclick="switchTab('freeTab')">Free to Play</button>
-      <button class="tab-button" onclick="switchTab('registerTab')">Register</button>
-      <button class="tab-button" onclick="promptPIN('bracketsTab')">Brackets</button>
-      <button class="tab-button" onclick="promptPIN('adminTab')">Admin</button>
-    </nav>
-
-    <div class="content">
-      <div class="tab-content" id="payTab">
-        <h2>Pay to Play</h2>
-        <p>Competitive 5v5 and 2v2 brackets. Entry fee required.</p>
-      </div>
-
-      <div class="tab-content" id="freeTab" style="display: none;">
-        <h2>Free to Play</h2>
-        <p>Casual 1v1 brackets. Free entry, fun prizes.</p>
-      </div>
-
-      <div class="tab-content" id="registerTab" style="display: none;">
-        <h2>Register - Contact Info</h2>
-        <form id="registerForm">
-          <input type="text" id="teamName" placeholder="Team Name" required />
-          <input type="text" id="playerNames" placeholder="Player Names" required />
-          <button type="submit">Submit</button>
-        </form>
-        <div id="confirmation" style="display: none; color: lime; margin-top: 10px;">
-          Registration successful!
-        </div>
-      </div>
-
-      <div class="tab-content" id="bracketsTab" style="display: none;">
-        <h2>Registered Teams</h2>
-        <ul id="registeredTeams"></ul>
-      </div>
-
-      <div class="tab-content" id="adminTab" style="display: none;">
-        <h2>Admin Panel</h2>
-        <button onclick="resetPlayers()">Reset Registered Players</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Firebase SDK -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div class="main-container">
+    <aside class="tab-menu">
+      <button onclick="switchTab('freeTab')">Free to Play</button>
+      <button onclick="switchTab('payTab')">Pay to Play</button>
+      <button onclick="switchTab('optionsTab')">Options</button>
+      <button onclick="promptPIN('bracketsTab')">Brackets</button>
+      <button onclick="promptPIN('adminTab')">Admin</button>
+    </aside>
 
-  <!-- Firebase Configuration -->
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBiNxXtfGy4YbywG4WfsKo-i0oVDz_NTbM",
-      authDomain: "loswingin-r6.firebaseapp.com",
-      projectId: "loswingin-r6",
-      storageBucket: "loswingin-r6.firebasestorage.app",
-      messagingSenderId: "44769835884",
-      appId: "1:44769835884:web:157c7aed1b98442532d149",
-      measurementId: "G-LF4DE76P16"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-  </script>
+    <main class="tab-content-container">
+      <!-- Register -->
+      <section id="freeTab" class="tab-content" style="display:block;">
+        <h2>Register - Free to Play</h2>
+        <form id="registrationForm">
+          <label for="name">Team/Player Name:</label>
+          <input type="text" id="name" required />
+          <label for="contact">Contact Info:</label>
+          <input type="text" id="contact" required />
+          <button type="submit">Submit</button>
+        </form>
+      </section>
 
-  <!-- Site Script -->
+      <!-- Pay to Play -->
+      <section id="payTab" class="tab-content">
+        <h2>Pay to Play</h2>
+        <p>Details for paid entry events will go here.</p>
+      </section>
+
+      <!-- Options -->
+      <section id="optionsTab" class="tab-content">
+        <h2>Options</h2>
+        <p>Feature settings and preferences.</p>
+      </section>
+
+      <!-- Brackets -->
+      <section id="bracketsTab" class="tab-content">
+        <h2>Registered Players</h2>
+        <div id="registeredPlayers"></div>
+      </section>
+
+      <!-- Admin -->
+      <section id="adminTab" class="tab-content">
+        <h2>Admin Panel</h2>
+        <button onclick="resetRegisteredPlayers()">Reset Registered Players</button>
+      </section>
+    </main>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>

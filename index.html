@@ -2,64 +2,68 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Loswingin R6 Tournament</title>
-  <link rel="stylesheet" href="style.css" />
-  <script defer src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Firebase SDKs -->
+  <script defer src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
   <script defer src="script.js"></script>
 </head>
 <body>
-  <div class="tabs-vertical">
-    <button class="tab-button active" data-tab="register">Register</button>
-    <button class="tab-button" data-tab="free">Free to Play</button>
-    <button class="tab-button" data-tab="paid">Pay to Play</button>
-    <button class="tab-button" data-tab="brackets">Brackets</button>
-    <button class="tab-button" data-tab="admin">Admin</button>
-  </div>
+  <div class="container">
+    <nav class="tabs">
+      <button class="tab active" data-tab="register">Register</button>
+      <button class="tab" data-tab="free">Free to Play</button>
+      <button class="tab" data-tab="pay">Pay to Play</button>
+      <button class="tab" data-tab="brackets">Brackets</button>
+      <button class="tab" data-tab="admin">Admin</button>
+    </nav>
 
-  <div class="content-container">
-    <div id="register" class="tab-content active">
+    <section id="register" class="tab-content active">
       <h2>Register</h2>
       <form id="registerForm">
         <input type="text" id="teamName" placeholder="Team Name" required />
         <input type="text" id="contactInfo" placeholder="Contact Info" required />
         <button type="submit">Submit</button>
       </form>
-      <p id="confirmation" class="hidden">Registration Submitted!</p>
-    </div>
+      <p id="confirmationMessage" class="confirmation"></p>
+    </section>
 
-    <div id="free" class="tab-content">
+    <section id="free" class="tab-content">
       <h2>Free to Play</h2>
-      <p>Info about Free to Play tournaments.</p>
-    </div>
+      <p>Details about Free to Play mode here.</p>
+    </section>
 
-    <div id="paid" class="tab-content">
+    <section id="pay" class="tab-content">
       <h2>Pay to Play</h2>
-      <p>Info about Paid tournaments.</p>
-    </div>
+      <p>Details about Pay to Play mode here.</p>
+    </section>
 
-    <div id="brackets" class="tab-content">
-      <div id="bracketsContent" class="hidden">
+    <section id="brackets" class="tab-content">
+      <div id="bracketLogin">
+        <h2>Enter PIN to Access Brackets</h2>
+        <input type="password" id="bracketsPinInput" placeholder="Enter PIN" />
+        <button id="bracketsPinBtn">Enter</button>
+        <p id="bracketsPinError" class="error"></p>
+      </div>
+      <div id="bracketsContent" style="display:none;">
         <h2>Registered Teams</h2>
-        <ul id="registeredTeams"></ul>
+        <ul id="teamList"></ul>
       </div>
-      <div id="bracketsPinInput">
-        <input type="password" id="bracketsPin" placeholder="Enter PIN" />
-        <button onclick="checkBracketsPin()">Submit</button>
-      </div>
-    </div>
+    </section>
 
-    <div id="admin" class="tab-content">
-      <div id="adminContent" class="hidden">
-        <h2>Admin Panel</h2>
-        <button onclick="resetRegistrations()">Reset All Registrations</button>
+    <section id="admin" class="tab-content">
+      <div id="adminLogin">
+        <h2>Enter Admin PIN</h2>
+        <input type="password" id="adminPinInput" placeholder="Enter PIN" />
+        <button id="adminPinBtn">Enter</button>
+        <p id="adminPinError" class="error"></p>
       </div>
-      <div id="adminPinInput">
-        <input type="password" id="adminPin" placeholder="Enter PIN" />
-        <button onclick="checkAdminPin()">Submit</button>
+      <div id="adminPanel" style="display:none;">
+        <button id="resetBtn">Reset Registered Teams</button>
       </div>
-    </div>
+    </section>
   </div>
 </body>
 </html>

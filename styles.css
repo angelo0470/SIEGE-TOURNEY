@@ -1,107 +1,69 @@
 body {
   margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: sans-serif;
   background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-  color: #fff;
+  color: white;
   display: flex;
   height: 100vh;
-  overflow: hidden;
 }
 
-.main-container {
+.container {
   display: flex;
   width: 100%;
-  height: 100%;
 }
 
-.tab-menu {
+.sidebar {
   width: 200px;
-  background: rgba(0, 0, 0, 0.7);
-  border-right: 2px solid #ff00ff;
+  background-color: #111;
   display: flex;
   flex-direction: column;
-  justify-content: start;
-  padding: 10px;
+  padding: 1rem;
+  gap: 1rem;
+  border-right: 2px solid magenta;
 }
 
-.tab-menu button {
-  background: transparent;
-  border: 2px solid #00ffff;
-  color: #fff;
-  padding: 12px;
-  margin: 10px 0;
-  font-size: 16px;
+.tab-button {
+  background: none;
+  border: 2px solid cyan;
+  color: magenta;
+  padding: 10px;
   cursor: pointer;
   transition: 0.3s;
-  border-radius: 4px;
-  text-align: left;
+  font-weight: bold;
 }
 
-.tab-menu button:hover {
-  background: rgba(255, 0, 255, 0.2);
-  box-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
+.tab-button:hover {
+  background-color: cyan;
+  color: black;
+  box-shadow: 0 0 15px magenta;
 }
 
-.tab-content-container {
-  flex-grow: 1;
-  padding: 20px;
+.content {
+  flex: 1;
+  padding: 2rem;
   overflow-y: auto;
-  background: url('images/parallax-wall.png') no-repeat center center fixed;
-  background-size: cover;
 }
 
-.tab-content {
+.tab {
   display: none;
 }
 
-.tab-content h2 {
-  color: #00ffff;
-  border-bottom: 2px solid #ff00ff;
-  padding-bottom: 10px;
+.tab.active {
+  display: block;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  width: 300px;
-}
-
-form label {
+input, button {
   margin-top: 10px;
-}
-
-form input {
   padding: 10px;
-  margin-top: 5px;
-  background: #111;
-  border: 1px solid #ff00ff;
-  color: #fff;
-  border-radius: 4px;
+  font-size: 16px;
 }
 
-form button {
-  margin-top: 20px;
-  padding: 12px;
-  background: #00ffff;
-  color: #000;
-  border: none;
+.hidden {
+  display: none;
+}
+
+#confirmation {
+  margin-top: 10px;
+  color: lime;
   font-weight: bold;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-form button:hover {
-  background: #ff00ff;
-  color: #fff;
-  box-shadow: 0 0 10px #ff00ff;
-}
-
-#registeredPlayers {
-  margin-top: 20px;
-  background: rgba(0,0,0,0.4);
-  padding: 15px;
-  border: 1px solid #00ffff;
-  border-radius: 8px;
 }

@@ -1,14 +1,26 @@
-// Firebase setup
+// Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBiNxXtfGy4YbywG4WfsKo-i0oVDz_NTbM",
+  authDomain: "loswingin-r6.firebaseapp.com",
+  projectId: "loswingin-r6",
+  storageBucket: "loswingin-r6.appspot.com",
+  messagingSenderId: "44769835884",
+  appId: "1:44769835884:web:157c7aed1b98442532d149",
+  measurementId: "G-LF4DE76P16"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Tab switching
+// Tab Switching with PIN Protection
 function switchTab(tabId) {
-  const tabs = document.querySelectorAll('.tab-content');
-  tabs.forEach(tab => tab.style.display = 'none');
+  document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.style.display = 'none';
+  });
   document.getElementById(tabId).style.display = 'block';
 }
 
-// PIN protection for Admin and Brackets
 function promptPIN(tabId) {
   const pin = prompt("Enter PIN:");
   if (pin === "1234") {
@@ -21,55 +33,62 @@ function promptPIN(tabId) {
   }
 }
 
-// Handle registration form
-document.getElementById("registerForm").addEventListener("submit", async (e) => {
+// Handle Registration
+document.getElementById("registrationForm").addEventListener("submit", function(e) {
   e.preventDefault();
-  const teamName = document.getElementById("teamName").value.trim();
-  const playerNames = document.getElementById("playerNames").value.trim();
+  const name = document.getElementById("name").value;
+  const contact = document.getElementById("contact").value;
 
-  if (!teamName || !playerNames) return;
-
-  try {
-    await db.collection("registered").add({ teamName, playerNames });
-    document.getElementById("confirmation").style.display = "block";
-    document.getElementById("registerForm").reset();
-    setTimeout(() => {
-      document.getElementById("confirmation").style.display = "none";
-    }, 3000);
-  } catch (error) {
-    console.error("Registration error:", error);
-  }
+  db.collection("registrations").add({
+    name: name,
+    contact: contact,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    alert("Registration submitted!");
+    document.getElementById("registrationForm").reset();
+  }).catch((error) => {
+    alert("Error submitting registration: " + error.message);
+  });
 });
 
-// Load registered players into Brackets tab
-async function loadRegisteredPlayers() {
-  const list = document.getElementById("registeredTeams");
-  list.innerHTML = "";
-  try {
-    const snapshot = await db.collection("registered").get();
-    snapshot.forEach(doc => {
-      const { teamName, playerNames } = doc.data();
-      const li = document.createElement("li");
-      li.textContent = `${teamName} - ${playerNames}`;
-      list.appendChild(li);
+// Load Players to Brackets
+function loadRegisteredPlayers() {
+  const container = document.getElementById("registeredPlayers");
+  container.innerHTML = "<p>Loading...</p>";
+  db.collection("registrations").orderBy("timestamp", "desc").get()
+    .then((querySnapshot) => {
+      container.innerHTML = "";
+      if (querySnapshot.empty) {
+        container.innerHTML = "<p>No registered players yet.</p>";
+        return;
+      }
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const div = document.createElement("div");
+        div.className = "player-entry";
+        div.textContent = `${data.name} - ${data.contact}`;
+        container.appendChild(div);
+      });
+    })
+    .catch((error) => {
+      container.innerHTML = "<p>Error loading players.</p>";
+      console.error("Error getting documents: ", error);
     });
-  } catch (error) {
-    console.error("Error loading registered teams:", error);
-  }
 }
 
-// Reset players from Firebase
-async function resetPlayers() {
-  if (!confirm("Are you sure you want to reset all registrations?")) return;
-
-  try {
-    const snapshot = await db.collection("registered").get();
+// Reset Players (Admin)
+function resetRegisteredPlayers() {
+  if (!confirm("Are you sure you want to delete all registered players?")) return;
+  db.collection("registrations").get().then((querySnapshot) => {
     const batch = db.batch();
-    snapshot.forEach(doc => batch.delete(doc.ref));
-    await batch.commit();
-    alert("All registrations have been cleared.");
+    querySnapshot.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+    return batch.commit();
+  }).then(() => {
+    alert("All registered players deleted.");
     loadRegisteredPlayers();
-  } catch (error) {
-    console.error("Error resetting players:", error);
-  }
+  }).catch((error) => {
+    alert("Error deleting players: " + error.message);
+  });
 }

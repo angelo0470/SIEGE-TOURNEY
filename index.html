@@ -2,66 +2,62 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Loswingin R6 Tournament</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- Firebase SDK -->
   <script defer src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <script defer src="script.js"></script>
 </head>
 <body>
-  <div class="container">
-    <div class="sidebar">
-      <button class="tab-button" data-tab="register">Register</button>
-      <button class="tab-button" data-tab="free">Free to Play</button>
-      <button class="tab-button" data-tab="pay">Pay to Play</button>
-      <button class="tab-button" data-tab="brackets">Brackets</button>
-      <button class="tab-button" data-tab="admin">Admin</button>
+  <div class="tabs-vertical">
+    <button class="tab-button active" data-tab="register">Register</button>
+    <button class="tab-button" data-tab="free">Free to Play</button>
+    <button class="tab-button" data-tab="paid">Pay to Play</button>
+    <button class="tab-button" data-tab="brackets">Brackets</button>
+    <button class="tab-button" data-tab="admin">Admin</button>
+  </div>
+
+  <div class="content-container">
+    <div id="register" class="tab-content active">
+      <h2>Register</h2>
+      <form id="registerForm">
+        <input type="text" id="teamName" placeholder="Team Name" required />
+        <input type="text" id="contactInfo" placeholder="Contact Info" required />
+        <button type="submit">Submit</button>
+      </form>
+      <p id="confirmation" class="hidden">Registration Submitted!</p>
     </div>
 
-    <div class="content">
-      <div id="register" class="tab active">
-        <h2>Register</h2>
-        <p>Contact Info</p>
-        <form id="registerForm">
-          <input type="text" id="name" placeholder="Player Name" required />
-          <input type="text" id="team" placeholder="Team Name" required />
-          <button type="submit">Register</button>
-          <p id="confirmation" class="hidden">Registration sent!</p>
-        </form>
-      </div>
+    <div id="free" class="tab-content">
+      <h2>Free to Play</h2>
+      <p>Info about Free to Play tournaments.</p>
+    </div>
 
-      <div id="free" class="tab">
-        <h2>Free to Play</h2>
-        <p>Details about the free tournaments.</p>
-      </div>
+    <div id="paid" class="tab-content">
+      <h2>Pay to Play</h2>
+      <p>Info about Paid tournaments.</p>
+    </div>
 
-      <div id="pay" class="tab">
-        <h2>Pay to Play</h2>
-        <p>Details about the paid tournaments.</p>
+    <div id="brackets" class="tab-content">
+      <div id="bracketsContent" class="hidden">
+        <h2>Registered Teams</h2>
+        <ul id="registeredTeams"></ul>
       </div>
-
-      <div id="brackets" class="tab">
-        <div id="bracketProtected">
-          <input type="password" id="bracketPin" placeholder="Enter PIN" />
-          <button onclick="checkBracketPin()">Enter</button>
-        </div>
-        <div id="bracketContent" class="hidden">
-          <h2>Registered Players</h2>
-          <ul id="playerList"></ul>
-        </div>
+      <div id="bracketsPinInput">
+        <input type="password" id="bracketsPin" placeholder="Enter PIN" />
+        <button onclick="checkBracketsPin()">Submit</button>
       </div>
+    </div>
 
-      <div id="admin" class="tab">
-        <div id="adminProtected">
-          <input type="password" id="adminPin" placeholder="Enter PIN" />
-          <button onclick="checkAdminPin()">Enter</button>
-        </div>
-        <div id="adminContent" class="hidden">
-          <h2>Admin Panel</h2>
-          <button onclick="resetPlayers()">Reset Registered Players</button>
-        </div>
+    <div id="admin" class="tab-content">
+      <div id="adminContent" class="hidden">
+        <h2>Admin Panel</h2>
+        <button onclick="resetRegistrations()">Reset All Registrations</button>
+      </div>
+      <div id="adminPinInput">
+        <input type="password" id="adminPin" placeholder="Enter PIN" />
+        <button onclick="checkAdminPin()">Submit</button>
       </div>
     </div>
   </div>

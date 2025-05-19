@@ -1,69 +1,60 @@
 body {
   margin: 0;
-  font-family: sans-serif;
-  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(to bottom right, #0ff, #f0f);
   color: white;
   display: flex;
   height: 100vh;
+  overflow: hidden;
 }
 
-.container {
-  display: flex;
-  width: 100%;
-}
-
-.sidebar {
-  width: 200px;
-  background-color: #111;
+.tabs-vertical {
   display: flex;
   flex-direction: column;
-  padding: 1rem;
-  gap: 1rem;
+  background-color: #111;
+  padding: 10px;
   border-right: 2px solid magenta;
 }
 
 .tab-button {
   background: none;
   border: 2px solid cyan;
-  color: magenta;
+  color: cyan;
   padding: 10px;
+  margin: 5px 0;
   cursor: pointer;
   transition: 0.3s;
-  font-weight: bold;
 }
 
-.tab-button:hover {
-  background-color: cyan;
-  color: black;
-  box-shadow: 0 0 15px magenta;
+.tab-button:hover, .tab-button.active {
+  background-color: magenta;
+  color: white;
+  box-shadow: 0 0 10px magenta, 0 0 20px cyan;
 }
 
-.content {
-  flex: 1;
-  padding: 2rem;
+.content-container {
+  flex-grow: 1;
+  padding: 20px;
+  background: #000;
   overflow-y: auto;
 }
 
-.tab {
+.tab-content {
   display: none;
 }
 
-.tab.active {
+.tab-content.active {
   display: block;
 }
 
 input, button {
-  margin-top: 10px;
+  display: block;
+  margin: 10px 0;
   padding: 10px;
-  font-size: 16px;
+  width: 100%;
+  max-width: 400px;
 }
 
 .hidden {
   display: none;
-}
-
-#confirmation {
-  margin-top: 10px;
-  color: lime;
-  font-weight: bold;
 }

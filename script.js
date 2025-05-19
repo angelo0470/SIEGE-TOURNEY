@@ -9,80 +9,76 @@ const firebaseConfig = {
   measurementId: "G-LF4DE76P16"
 };
 
-// Init Firebase
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Tab switching
-document.querySelectorAll(".tab-button").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const tab = btn.getAttribute("data-tab");
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    document.getElementById(tab).classList.add("active");
+const registerForm = document.getElementById('registerForm');
+const confirmation = document.getElementById('confirmation');
+const registeredTeams = document.getElementById('registeredTeams');
+const tabs = document.querySelectorAll('.tab-button');
+const contents = document.querySelectorAll('.tab-content');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const target = tab.dataset.tab;
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    contents.forEach(c => {
+      c.classList.remove('active');
+      if (c.id === target) c.classList.add('active');
+    });
   });
 });
 
-// Register player
-document.getElementById("registerForm").addEventListener("submit", async (e) => {
+registerForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const name = document.getElementById("name").value;
-  const team = document.getElementById("team").value;
-
-  try {
-    await db.collection("registered").add({ name, team });
-    document.getElementById("confirmation").classList.remove("hidden");
-    document.getElementById("registerForm").reset();
-    setTimeout(() => {
-      document.getElementById("confirmation").classList.add("hidden");
-    }, 3000);
-  } catch (err) {
-    alert("Registration failed.");
-  }
+  const team = document.getElementById('teamName').value;
+  const contact = document.getElementById('contactInfo').value;
+  await db.collection("Registered").add({ team, contact });
+  confirmation.classList.remove('hidden');
+  registerForm.reset();
+  setTimeout(() => confirmation.classList.add('hidden'), 3000);
 });
 
-// PIN-protected access
-function checkBracketPin() {
-  const pin = document.getElementById("bracketPin").value;
+function checkBracketsPin() {
+  const pin = document.getElementById('bracketsPin').value;
   if (pin === "1234") {
-    document.getElementById("bracketProtected").classList.add("hidden");
-    document.getElementById("bracketContent").classList.remove("hidden");
-    loadPlayers();
+    document.getElementById('bracketsContent').classList.remove('hidden');
+    document.getElementById('bracketsPinInput').classList.add('hidden');
+    loadRegisteredTeams();
   } else {
     alert("Incorrect PIN");
   }
 }
 
 function checkAdminPin() {
-  const pin = document.getElementById("adminPin").value;
+  const pin = document.getElementById('adminPin').value;
   if (pin === "1234") {
-    document.getElementById("adminProtected").classList.add("hidden");
-    document.getElementById("adminContent").classList.remove("hidden");
+    document.getElementById('adminContent').classList.remove('hidden');
+    document.getElementById('adminPinInput').classList.add('hidden');
   } else {
     alert("Incorrect PIN");
   }
 }
 
-// Load registered players
-async function loadPlayers() {
-  const list = document.getElementById("playerList");
-  list.innerHTML = "";
-  const snapshot = await db.collection("registered").get();
+async function loadRegisteredTeams() {
+  registeredTeams.innerHTML = "";
+  const snapshot = await db.collection("Registered").get();
   snapshot.forEach(doc => {
     const data = doc.data();
-    const li = document.createElement("li");
-    li.textContent = `${data.name} - ${data.team}`;
-    list.appendChild(li);
+    const li = document.createElement('li');
+    li.textContent = `${data.team} - ${data.contact}`;
+    registeredTeams.appendChild(li);
   });
 }
 
-// Admin reset
-async function resetPlayers() {
-  const snapshot = await db.collection("registered").get();
+async function resetRegistrations() {
+  const snapshot = await db.collection("Registered").get();
   const batch = db.batch();
-  snapshot.forEach(doc => {
-    batch.delete(doc.ref);
-  });
+  snapshot.forEach(doc => batch.delete(doc.ref));
   await batch.commit();
-  alert("All registered players have been cleared.");
-  loadPlayers();
+  alert("All registrations have been reset.");
+  registeredTeams.innerHTML = "";
 }
